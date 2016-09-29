@@ -26,4 +26,4 @@ You can find the repository for the Rendering engine [here](https://github.com/T
 
 Thanks for staying until the end, sorry for the long post.
 
-![http://www.woodensupplies.co.uk/images/q-deck-plus-long-contemporary-newel-post-3m-uc4-p544-402_medium.jpg "A long Post, kinda"]
+![alt-text](http://www.woodensupplies.co.uk/images/q-deck-plus-long-contemporary-newel-post-3m-uc4-p544-402_medium.jpg "A long Post, kinda")
