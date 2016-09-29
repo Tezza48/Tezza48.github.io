@@ -1,3 +1,11 @@
+---
+layout: post
+title: "Welcome to My Blog"
+date: 2016-09-29 18:51:42 +0100
+categories: does this work
+---
+
+
 #Welcome to my Blog
 
 This is a temporary blog post.
@@ -11,7 +19,7 @@ I am also using this post to get to grips with how the Markdown system works, fo
 * C++
 * C#
 * JavaScript (Unity 3D)
-  
+
 The Game Engines/Frameworks i have used in order of how comfortable i am with them are:
 
 1. Unity3D
@@ -21,7 +29,7 @@ The Game Engines/Frameworks i have used in order of how comfortable i am with th
   * C#
 3. Unreal Engine 4
   * C++
-  
+
 You can find the repository for the Rendering engine [here](https://github.com/Tezza48/FinalProject_RenderingEngine)
 
 Thanks for staying until the end, sorry for the long post.
