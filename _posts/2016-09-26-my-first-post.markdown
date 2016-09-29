@@ -4,23 +4,17 @@ title: "Welcome to My Blog"
 date: 2016-09-29 18:51:42 +0100
 categories: does this work
 ---
-
-
-#Welcome to my Blog
-
 This is a temporary blog post.
 
-Here i will be documenting the development of the Rendering engine i will be creating as part of my Final project at University, i will be posting Updates, progress reports and the research i have done in order to inform the direction the project goes.
+Here I will be documenting the development of the Rendering engine I will be creating as part of my Final project at University, I will be posting Updates, progress reports and the research I have done in order to inform the direction the project goes.
 
-##Additional Info##
-
-I am also using this post to get to grips with how the Markdown system works, for example, The programming languages i am comfortable using are:
+I am also using this post to get to grips with how the Markdown system works, for example, The programming languages I am comfortable using are:
 
 * C++
 * C#
 * JavaScript (Unity 3D)
 
-The Game Engines/Frameworks i have used in order of how comfortable i am with them are:
+The Game Engines/Frameworks I have used in order of how comfortable I am with them are:
 
 1. Unity3D
   * C#
