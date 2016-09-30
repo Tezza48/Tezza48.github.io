@@ -1,0 +1,12 @@
+---
+layout: post
+title: "All Set Up"
+---
+
+Finally, this blog is set-up and presentable!
+
+I fell like I have become the world's greatest hacker/detective - Pro enough to hack the Gibson... - in my attempts to set up Jekyll, install the relevant software to make Windows happy with it and trawling through individual files trying to find the cause of the mysterious invisible styling causing these pages to look like they were written in the early days of the internet.
+
+All things considered, without using [Jekyl](https://jekyllrb.com/) this could have easily taken months to set up, with all the detours that you make when building something from scratch, especially when you have the attention span of a gold-fish. I hope that this will serve me well during the course of this year and hopefully beyond, into the future.
+
+Thanks for joining me and Hold on; it's gonna be a bumpy ride.
