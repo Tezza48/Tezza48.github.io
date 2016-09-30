@@ -3,6 +3,7 @@ layout: post
 title: "All Set Up"
 date: 2016-09-30 02:51:19 +0100
 categories: general
+comments: true
 ---
 
 Finally, this blog is set-up and presentable!

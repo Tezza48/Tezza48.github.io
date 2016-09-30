@@ -1,6 +1,7 @@
 ---
 layout: post
 title: "All Set Up"
+comments: true
 ---
 
 Finally, this blog is set-up and presentable!
