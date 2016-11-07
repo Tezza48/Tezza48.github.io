@@ -14,7 +14,7 @@ ___
 
 ### Brief outline of work
 
-Over the course of this final project it is my goal to learn the DirectX 12 API then, with this knowledge and my experience with C++, create a Rendering engine suitable for use in a game engine. DirectX is available only on the Windows and Xbox platforms, as I own an Xbox One, it seems fitting that I should use DirectX as this will allow me to test the engine in a console environment. I am confident in using C++ and would like to use this project as an opportunity to enhance my skills with it by iterating and optimising my code as I learn more features of the language.
+Over the course of this final project it is my goal to learn the DirectX 11 API (DX11) then, with this knowledge and my experience with C++, create a Rendering engine suitable for use in a game engine. DirectX is available only on the Windows and Xbox platforms, as I own an Xbox One, it seems fitting that I should use DirectX as this will allow me to test the engine in a console environment. I am confident in using C++ and would like to use this project as an opportunity to enhance my skills with it by iterating and optimising my code as I learn more features of the language.
 
 
 ### Methodology
@@ -37,7 +37,7 @@ The additional features for the next tier I would like to implement are as follo
 
 Finally, should I manage to successfully implement all of the recommended features above, I will consider adding one or two of these “Pie in the Sky” features.
 
- - Adding OpenGL or Vulcan support to the engine will allow it to run on non-windows systems such as Mac/Linux, this portability will make the engine available on nearly every platform.
+ - Adding OpenGL or Vulcan support to the engine will allow it to run on non-windows systems such as Mac/Linux, this portability will make the engine available on nearly every platform. Similarly, using the newer but lower level DirectX 12 API (DX12) would allow me to learn more about the interaction between the CPU and GPU.
  - For ease of use it would be nice to be able to use more file types for assets so I would like to be able to import JPEG, PNG and BMP.
  -  For meshes it would be nice to have the ability to import OBJ/Wavefront files as this is another common file format used.
 
@@ -54,6 +54,10 @@ Finally, I would like to add a basic animation system, allowing objects to be tr
 I have spent time looking through Programming vacancies in Game studios and I have noticed a theme of companies either asking for experience in using C++ or knowledge of 3D maths. For this reason I decided taking on a project involving C++ and low level libraries for rendering at its core, I feel this will greatly improve my employability after graduation.
 
 Additionally, the advanced features I have planned consist mostly of portability and quality features. The hope being that, in the future, I will be able to use this rendering engine as a framework similar to Monogame to create my own games with and further contribute to, with the possibility of it becoming a flexible yet powerful Game Engine that I can add to my portfolio.
+
+Initially it was my plan to use DX12 as the starting API, however, after trying my best to understand it, I currently have very little experience with graphics programming and it is more sensible for me to learn the higher level and more established DX11.
+
+Regarding the job vacancies, I have listed, I searched through job openings at major companies that I saw as being where I would like to see my career going in the future. Two major points I took away from these were that primarily the applicants were required to know a variety of programming languages including C++ among various others that I already have experience with; secondly many of these ask for experience with rendering APIs and some requiring having programmed rendering/game engines.
 
 ___
 
