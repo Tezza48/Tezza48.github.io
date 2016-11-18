@@ -4,11 +4,6 @@ title: "Final Project Proposal"
 date: "2016-10-31 22:12:57 +0000"
 ---
 
-___
-
-_This is a working draft of my dissertation proposal, I realise it would be useful to have a formal introduction to this project, as such, I'm posting it._
-
-___
 
 ## Designing and Programming a DirectX 12 Rendering Engine in C++
 
