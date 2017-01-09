@@ -2,6 +2,7 @@
 layout: post
 title: "Milestone - Drawing a Spinning Cube"
 date: "2016-11-18 18:08:00 +0000"
+categories: Dissertation
 ---
 
 Over the past two weeks I have been working towards completing my first programming milestone: _Drawing a cube in DirectX_. This has been a massive learning experience for me; I have learned about DirectX and Direct 3D in general, the rendering pipeline, shaders and many useful standards relating to C++ and OOP.

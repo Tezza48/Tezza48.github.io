@@ -2,6 +2,7 @@
 layout: post
 title: "Proposal Change 1"
 date: "2016-11-07 11:15:08 +0000"
+categories: Dissertation
 ---
 
 As per my initial proposal, I have been learning the DirectX 12 API (DX12) using Luna, F's _3D Game Programming With DirectX 12_.
