@@ -59,52 +59,52 @@ ___
 
 ## References
 
-Autodesk.com. (2016). FBX - Overview. [online] Available at: http://www.autodesk.com/products/fbx/overview [Accessed 11 Oct. 2016].
+Autodesk.com. (2016). FBX - Overview. [online] Available at: [http://www.autodesk.com/products/fbx/overview](http://www.autodesk.com/products/fbx/overview) [Accessed 11 Oct. 2016].
 
 I will be using the FBX file format to import mesh data to the engine.
 
 Dabrovic, M. (2002). Sponza. [3D Model].
 Marko Dabrovic is the creator of the Sponza 3D model that I will be using as a test bench for my engine.
 
-Foster, G. (n.d.). Understanding and Implementing Scene Graphs. [online] Archive.gamedev.net. Available at: http://archive.gamedev.net/archive/reference/programming/features/scenegraph/index.html [Accessed 11 Oct. 2016].
+Foster, G. (n.d.). Understanding and Implementing Scene Graphs. [online] Archive.gamedev.net. Available at: [http://archive.gamedev.net/archive/reference/programming/features/scenegraph/index.html](http://archive.gamedev.net/archive/reference/programming/features/scenegraph/index.html) [Accessed 11 Oct. 2016].
 This article demonstrates how a scene graph works in a 3D environment, I will use this as a starting point when designing the one I will use.
 
 Lippman, S., Lajoie, J. and Moo, B. (2013). C++ primer. Upper Saddle River, NJ: Addison-Wesley.
 Luna, F. (n.d.). Introduction to 3D game programming with DirectX® 12.
 
-McGuire, (2011). Meshes. [online] Computer Graphics Archive. Available at: http://graphics.cs.williams.edu/data/meshes.xml [Accessed 5 Oct. 2016].
+McGuire, (2011). Meshes. [online] Computer Graphics Archive. Available at: [http://graphics.cs.williams.edu/data/meshes.xml](http://graphics.cs.williams.edu/data/meshes.xml) [Accessed 5 Oct. 2016].
 McGuire has provided the download of Dabrovic’s Sponza scene and has also included his own normal maps which will prove useful.
 
-Msdn.microsoft.com. (2016). Getting Started with Direct3D (Windows). [online] Available at: https://msdn.microsoft.com/en-us/library/windows/desktop/hh769064(v=vs.85).aspx#What_is_D3D [Accessed 11 Oct. 2016].
+Msdn.microsoft.com. (2016). Getting Started with Direct3D (Windows). [online] Available at: [https://msdn.microsoft.com/en-us/library/windows/desktop/hh769064(v=vs.85).aspx#What_is_D3D](https://msdn.microsoft.com/en-us/library/windows/desktop/hh769064(v=vs.85).aspx#What_is_D3D) [Accessed 11 Oct. 2016].
 
-Paulbourke.net. (n.d.). Object Files (.obj). [online] Available at: http://paulbourke.net/dataformats/obj/ [Accessed 11 Oct. 2016].
+Paulbourke.net. (n.d.). Object Files (.obj). [online] Available at: [http://paulbourke.net/dataformats/obj/](http://paulbourke.net/dataformats/obj/) [Accessed 11 Oct. 2016].
 This page provides an in depth look at the OBJ format, it is a very simple and readable format so I should have no problem writing a class to load them.
 
-Russell, J. (2015). Basic Theory of Physically-Based Rendering. [online] Marmoset. Available at: https://www.marmoset.co/toolbag/learn/pbr-theory [Accessed 5 Oct. 2016].
+Russell, J. (2015). Basic Theory of Physically-Based Rendering. [online] Marmoset. Available at: [https://www.marmoset.co/toolbag/learn/pbr-theory](https://www.marmoset.co/toolbag/learn/pbr-theory) [Accessed 5 Oct. 2016].
 Russell provides a detailed look at PBR and explains how each map type affects the overall material.
 
 Stroustrup, B. (2014). Programming.
 
-Weinman, B. (2014). C++ Essential Training. [online] Lynda.com - from LinkedIn. Available at: https://www.lynda.com/C-tutorials/C-Essential-Training/182674-2.html [Accessed 13 Oct. 2016].
+Weinman, B. (2014). C++ Essential Training. [online] Lynda.com - from LinkedIn. Available at: [https://www.lynda.com/C-tutorials/C-Essential-Training/182674-2.html](https://www.lynda.com/C-tutorials/C-Essential-Training/182674-2.html) [Accessed 13 Oct. 2016].
 I went through this course to learn the basics of C++.
 
 ___
 
 ## Job Vacancies
 
-Programming - Quebec City, Quebec. [online] Available at: https://activision.jibeapply.com/activision/jobs/PRO0001DP/Quebec-City-Quebec-Programmers-ANI00007L?lang=en-US [Accessed 24 Oct. 2016].
+Programming - Quebec City, Quebec. [online] Available at: [https://activision.jibeapply.com/activision/jobs/PRO0001DP/Quebec-City-Quebec-Programmers-ANI00007L?lang=en-US](https://activision.jibeapply.com/activision/jobs/PRO0001DP/Quebec-City-Quebec-Programmers-ANI00007L?lang=en-US) [Accessed 24 Oct. 2016].
 
-GamesIndustry.biz. (2016). Core Tech Programmer – PC and Console Games - UK. [online] Available at: http://www.gamesindustry.biz/jobs/opm/uk-and-europe/core-tech-programmer-andndash--pc-and-console-games-uk-id87739 [Accessed 23 Oct. 2016].
+GamesIndustry.biz. (2016). Core Tech Programmer – PC and Console Games - UK. [online] Available at: [http://www.gamesindustry.biz/jobs/opm/uk-and-europe/core-tech-programmer-andndash--pc-and-console-games-uk-id87739](http://www.gamesindustry.biz/jobs/opm/uk-and-europe/core-tech-programmer-andndash--pc-and-console-games-uk-id87739) [Accessed 23 Oct. 2016].
 
-GamesIndustry.biz. (2016). Graduate Programmer – PC and Console Games Studio - UK. [online] Available at: http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graduate-programmer-andndash--pc-and-console-games-studio-uk-id87752 [Accessed 23 Oct. 2016].
+GamesIndustry.biz. (2016). Graduate Programmer – PC and Console Games Studio - UK. [online] Available at: [http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graduate-programmer-andndash--pc-and-console-games-studio-uk-id87752](http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graduate-programmer-andndash--pc-and-console-games-studio-uk-id87752) [Accessed 23 Oct. 2016].
 
-GamesIndustry.biz. (2016). Graphics Engine Programmer – PC and Console Games - UK. [online] Available at: http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graphics-engine-programmer-andndash--pc-and-console-games-uk-id87737 [Accessed 23 Oct. 2016].
+GamesIndustry.biz. (2016). Graphics Engine Programmer – PC and Console Games - UK. [online] Available at: [http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graphics-engine-programmer-andndash--pc-and-console-games-uk-id87737](http://www.gamesindustry.biz/jobs/opm/uk-and-europe/graphics-engine-programmer-andndash--pc-and-console-games-uk-id87737) [Accessed 23 Oct. 2016].
 
-Guerrilla-games.com. (2016). Tools Programmer. [online] Available at: https://www.guerrilla-games.com/join/senior-tools-programmer [Accessed 24 Oct. 2016].
+Guerrilla-games.com. (2016). Tools Programmer. [online] Available at: [https://www.guerrilla-games.com/join/senior-tools-programmer](https://www.guerrilla-games.com/join/senior-tools-programmer) [Accessed 24 Oct. 2016].
 
-Jobs.zenimax.com. (2016). ZeniMax Careers. [online] Available at: https://jobs.zenimax.com/requisitions/view/76 [Accessed 24 Oct. 2016].
+Jobs.zenimax.com. (2016). ZeniMax Careers. [online] Available at: [https://jobs.zenimax.com/requisitions/view/76](https://jobs.zenimax.com/requisitions/view/76) [Accessed 24 Oct. 2016].
 
-Jobs.zenimax.com. (2016). ZeniMax Careers. [online] Available at: https://jobs.zenimax.com/requisitions/view/907 [Accessed 24 Oct. 2016].
+Jobs.zenimax.com. (2016). ZeniMax Careers. [online] Available at: [https://jobs.zenimax.com/requisitions/view/907](https://jobs.zenimax.com/requisitions/view/907) [Accessed 24 Oct. 2016].
 
 ___
 
