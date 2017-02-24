@@ -17,7 +17,7 @@ I wrote two cubes for testing the lights, a "regular" cube with normals facing a
 
 Here's a render from 3DS Max of what i hoped to achieve:
 
-![Cube Demonstration]({{ site.url }}\img\dissertation\Lighting-Cube-Types.png){:width="960px"}
+![Cube Demonstration](\img\dissertation\Lighting-Cube-Types.png){:width="960px"}
 
 As you can see the flat shaded "Hard" cube does not show off the point light very effectively.
 
@@ -34,7 +34,7 @@ At this point, the Directional light works and both the point light and spot lig
 
 Both of these scenes have the same attenuation on the light but the range is greater in the right image.
 
-![Attenuation Problem]({{ site.url }}\img\dissertation\Lighting-Point-Light-Attenuation.png){:width="960px"}
+![Attenuation Problem](\img\dissertation\Lighting-Point-Light-Attenuation.png){:width="960px"}
 
 # Buffers
 
@@ -46,11 +46,11 @@ I had been struggling with getting a second buffer working and felt like i was g
 
 Here are some renders. (These were made after implementing the FBX importer)
 
-![Crate on a pallet]({{ site.url }}\img\dissertation\Lighting-Crate-Pallet.png){:width="960px"}
+![Crate on a pallet](\img\dissertation\Lighting-Crate-Pallet.png){:width="960px"}
 
-![Utah Teapot]({{ site.url }}\img\dissertation\Lighting-Teapot.png){:width="960px"}
+![Utah Teapot](\img\dissertation\Lighting-Teapot.png){:width="960px"}
 
-![Sponza]({{ site.url }}\img\dissertation\Lighting-Sponza.png){:width="960px"}
+![Sponza](\img\dissertation\Lighting-Sponza.png){:width="960px"}
 
 # Additionally...
 

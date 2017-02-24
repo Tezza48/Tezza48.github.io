@@ -4,4 +4,4 @@ title: "Milestones"
 permalink: /milestones/
 ---
 
-![Milestones]({{ sire.url }}\img\dissertation\Milestones.jpg){:width="960px"}
+![Milestones](\img\dissertation\Milestones.jpg){:width="960px"}
