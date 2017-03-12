@@ -48,7 +48,7 @@ I had been struggling with getting a second buffer working and felt like I was g
 
 Here are some renders. (These were made after implementing the FBX importer)
 
-![Crate on a pallet](\img\dissertation\Lighting-Crate-Pallet.png){:width="960px"}
+![Crate on a pallet](\img\dissertation\Lighting-Crate-on-Pallet.png){:width="960px"}
 
 ![Utah Teapot](\img\dissertation\Lighting-Teapot.png){:width="960px"}
 
