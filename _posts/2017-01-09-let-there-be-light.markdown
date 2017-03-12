@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Let there be light"
-date: "2017-01-09 00:30:57 +0000"
+date: "2017-03-12 10:30:00 +0000"
 categories: Dissertation
 comments: true
 ---
