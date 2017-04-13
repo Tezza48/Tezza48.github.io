@@ -6,25 +6,23 @@ date: "2017-04-07 00:08:02 +0100"
 
 # Textured Sponza Render
 
-I can import Fbx files and textures.
+ * Where i am
+  * I can import Fbx files and textures.
+  * I wanted to finally render the sponza scene with the correct textures
 
-I wanted to finally render the sponza scene with the correct textures
+ * What i did initially
+  * started by trying to get texture information from the FBX file
+  * spent lots of time not getting enywhere
+  * Decided to manually pair up mesh parts with textures
 
-started by trying to get texture information from the FBX file
-
-spent lots of time not getting enywhere
-
-Decided to manually pair up mesh parts with textures
-
-renamed all meshes in max file to end with the texture they use
-
-attatched all meshes with the same texture together
-
-exported all indivisual meshes and named them according to the texture they use
-
-Converted textures to Targa in GIMP.
-
-textures were 24 bit good excuse to add 24 bit conversion to content manager
+ * What i eventually did
+	 * Meshes
+		 * renamed all meshes in max file to end with the texture they use
+		 * attatched all meshes with the same texture together
+		 * exported all indivisual meshes and named them according to the texture they use
+	 * Textures
+		 * Converted textures to Targa in GIMP ( only 24 bit ).
+		 * add 24 bit conversion to content manager
 
 how the manager loops to add in the alpha channel
 ```
@@ -38,14 +36,25 @@ for (size_t tex24 = 0, tex32 = 0;
 	imgData[tex32 + 3] = (char)255;
 }
 ```
-figured out you can itterate through more than one variable in a for loop.
+_itterate through more than one variable in a for loop._
 
 fix to targa header li hi endian problem.
+```
+unsigned char widthLo = buffer[12];
+unsigned char widthHi = buffer[13];
+unsigned char heightLo = buffer[14];
+unsigned char heightHi = buffer[15];
 
-issue with Texture dtor, now checking that pointers are not null before deleting.
+/* unsigned chars */
 
-now holding an array of textures.
-
-Mesh importing now uses FBX built in axis conversion `FbxAxisSystem::DirectX.ConvertScene(scene); `
+header.width = widthHi << 8 | widthLo;
+header.height = heightHi << 8 | heightLo;
+```
 
 finally rendering the scene after placing the camera.
+
+ * Things learned
+	 * now checking that pointers are not null before deleting in dtor
+	 * now holding an array of textures.
+	 * Mesh importing now uses FBX built in axis conversion.
+	 * `FbxAxisSystem::DirectX.ConvertScene(scene); `
