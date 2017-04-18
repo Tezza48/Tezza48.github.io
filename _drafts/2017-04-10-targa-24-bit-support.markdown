@@ -34,6 +34,8 @@ for (size_t tex24 = 0, tex32 = 0;
 }
 ```
 
+---
+
 ## Side note Bugfix
 
 I was running into an error that meant that if textures were a certain size then the width or height would end up being negative, this was due to the header not being unsigned and me negating the low bytes. To fix this i cast the individual parts to `unsigned chars` before performing the bitwise maths, this uses up more lines and involves 4 temporary variables but it makes it a lot clearer what is happening and fixes the bug.
@@ -49,3 +51,9 @@ unsigned char heightHi = buffer[15];
 header.width = widthHi << 8 | widthLo;
 header.height = heightHi << 8 | heightLo;
 ```
+
+---
+
+Also it is important that when exporting to Targa in GIMP that you deselect the compression button, leaving that checked lead to a few wasted hours of debugging the 24 bit converter as the resulting image looked like this:
+
+![Compressed Targa](\img\dissertation\Textured-Sponza-compressed-targa.PNG)
