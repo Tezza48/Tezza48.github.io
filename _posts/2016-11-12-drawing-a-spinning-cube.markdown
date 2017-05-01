@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Milestone - Drawing a Spinning Cube"
+title: "Drawing a Spinning Cube"
 date: "2016-11-18 18:08:00 +0000"
 categories: Dissertation
 ---
