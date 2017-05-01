@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Targa: 24 bit support"
-date: "2017-04-10 18:38:34 +0100"
+date: "2017-04-10 00:00:00 +0100"
 ---
 
 # Targa: 24 bit Texture Support
