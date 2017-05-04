@@ -15,7 +15,7 @@ I have decided, instead of this to use DirectX 11, which not only has the benefi
 As a quick personal primer to DX11 I followed [DirectXTutorial](http://www.directxtutorial.com/)'s DX11 tutorial up to drawing a triangle onto the window, implemented it in a similar class to that which I used in my try at DX12 so that the window and all handling of D3D was in that class and easily read.
 As you can see I managed to draw this lovely "Triangle of Doom"!
 
-![Triangle Of Doom!]({{ site.url }}/img/dissertation/DX11-Triangle-Of-Doom.jpg)
+![Triangle Of Doom!](/img/dissertation/DX11-Triangle-Of-Doom.jpg)
 
 
 Due to this change, I have adjusted my milestones by moving them forward by one week, this small adjustment should be enough as most of the theory behind DX11 is very similar to DX12 so I already know much of the basic theory required. Though this slippage is an annoyance, I am glad that I have caught it at an early stage and confident that I will complete this project again.
