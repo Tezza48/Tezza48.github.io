@@ -2,6 +2,8 @@
 layout: post
 title: "Specular Maps"
 date: "2017-05-05 05:06:42 +0100"
+category: Dissertation
+comments: true
 ---
 
 # Specular Maps

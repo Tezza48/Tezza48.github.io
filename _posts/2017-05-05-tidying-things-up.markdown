@@ -2,8 +2,8 @@
 layout: post
 title: "Tidying Things Up"
 date: "2017-05-05 03:16:20 +0100"
-categoty: Dissertation
-comments: true;
+category: Dissertation
+comments: true
 ---
 
 The last few commits started out as the beginning of creating the scene manager, however as I began to move code around I realised that my D3D11App class was far too complicated, it's purpose was originally only to deal with DirectX matters but as time has passed it slowly turned into what can only be described as spaghetti code. Therefore, I decided it would be a far better decision to _tidy up_ the code and try to keep all my classes only handling what they should and having them make sense from an OOP perspective.

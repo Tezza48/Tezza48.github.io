@@ -2,6 +2,8 @@
 layout: post
 title: "Final Dissertation Post"
 date: "2017-05-05 11:59:59 +0100"
+category: Dissertation
+comments: true
 ---
 
 This post marks the last post I will write on the development of my rendering engine as a part of my Dissertation. This project has proven a gigantic learning curve, not only regarding C++ and DirectX but also maintaining a blog and documenting progress of a project.
