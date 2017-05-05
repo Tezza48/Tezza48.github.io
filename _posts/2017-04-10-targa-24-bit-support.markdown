@@ -1,26 +1,26 @@
 ---
 layout: post
-title: "Targa: 24 bit support"
+title: "Targa: 24-bit support"
 date: "2017-04-10 00:00:00 +0100"
 categories: Dissertation
 comments: true
 ---
 
-# Targa: 24 bit Texture Support
+# Targa: 24-bit Texture Support
 
-At this point in the project i really just want to have a render of the Sponza scene with all of it's txtures applied as it's now close to the end of the project and i am getting excited to see the whole thing come together
+At this point in the project I just want to have a render of the Sponza scene with all its textures applied as it's now close to the end of the project and I am getting excited to see the whole thing come together
 
-I ran into a problem with the provided textures which were all in JPEG format, which the engine cannot import, and i could only get GIMP to esport to TARGA as 24 bit which was not supported. I chose the sensible choice and added the support for using 24 bit Targas.
+I ran into a problem with the provided textures which were all in JPEG format, which the engine cannot import, and I could only get GIMP to export to TARGA as 24 bit which was not supported. I chose the sensible choice and added the support for using 24 bit Targas.
 
 ## The method
 
-Initially i had to convert the textures to .tga in GIMP which took far longer than i had anticipated, were it in Photoshop i could have set up a simple macro however i rarely use GIMP so that was not sopething i know how to do so i had to do it the old fashioned way and manually export each file.
+Initially I had to convert the textures to .tga in GIMP which took far longer than I had anticipated, were it in Photoshop I could have set up a simple macro however I rarely use GIMP so that was not something I know how to do so I had to do it the old-fashioned way and manually export each file.
 
-Then i started on modifying the importer in my content manager. The first port of call was removing the if statement that threw an error if the texture's bit depth was not 32, i replaced this with a switch block and placed the existing colour revering loop under the case: 32.
+Then I started on modifying the importer in my content manager. The first port of call was removing the if statement that threw an error if the texture's bit depth was not 32, I replaced this with a switch block and placed the existing colour revering loop under the case: 32.
 
-To make the data usable as a texture in DirectX i had to add alpha data to the texture, therefore inserting a new byte after every three existing ones. To do this i created a new array of `char`s of size width * height * 4, which i fill up using the data from the file, simultaneously swapping the blue and red channels as i do with the 32 bit files.
+To make the data usable as a texture in DirectX I had to add alpha data to the texture, therefore inserting a new byte after every three existing ones. To do this I created a new array of `char`s of size width * height * 4, which I fill up using the data from the file, simultaneously swapping the blue and red channels as I do with the 32-bit files.
 
-this ended up being very simple to do as i just iterate through a variable for the index in the 24 bit texture and the 32 bit texture at the same time adding 3 or 4 respectively, realizing i could do this in a for loop was helpful and i am sure i will be able to use it elsewhere in similar situations. i then just fill in the new larger array using the 3 existing bytes and setting the 4th byte to 255, completely opaque.
+this ended up being very simple to do as I just iterate through a variable for the index in the 24-bit texture and the 32-bit texture at the same time adding 3 or 4 respectively, realizing I could do this in a for loop was helpful and I am sure I will be able to use it elsewhere in similar situations. I then just fill in the new larger array using the 3 existing bytes and setting the 4th byte to 255, completely opaque.
 
 The loop is as follows:
 
@@ -40,7 +40,7 @@ for (size_t tex24 = 0, tex32 = 0;
 
 ## Side note Bugfix
 
-I was running into an error that meant that if textures were a certain size then the width or height would end up being negative, this was due to the header not being unsigned and me negating the low bytes. To fix this i cast the individual parts to `unsigned chars` before performing the bitwise maths, this uses up more lines and involves 4 temporary variables but it makes it a lot clearer what is happening and fixes the bug.
+I was running into an error that meant that if textures were a certain size then the width or height would end up being negative, this was due to the header not being unsigned and me negating the low bytes. To fix this I cast the individual parts to `unsigned chars` before performing the bitwise maths, this uses up more lines and involves 4 temporary variables but it makes it a lot clearer what is happening and fixes the bug.
 
 ```
 unsigned char widthLo = buffer[12];
@@ -56,6 +56,6 @@ header.height = heightHi << 8 | heightLo;
 
 ---
 
-Also it is important that when exporting to Targa in GIMP that you deselect the compression button, leaving that checked lead to a few wasted hours of debugging the 24 bit converter as the resulting image looked like this:
+Also, it is important that when exporting to Targa in GIMP that you deselect the compression button, leaving that checked lead to a few wasted hours of debugging the 24-bit converter as the resulting image looked like this:
 
 ![Compressed Targa](\img\dissertation\Textured-Sponza-compressed-targa.PNG)
