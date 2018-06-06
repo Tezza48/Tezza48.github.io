@@ -1,12 +1,14 @@
+@charset "utf-8";
+
 // Define defaults for each variable.
 
-$base-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !default;
+$base-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !default;
 $base-font-size:   16px !default;
 $base-font-weight: 400 !default;
 $small-font-size:  $base-font-size * 0.875 !default;
 $base-line-height: 1.5 !default;
 
-$spacing-unit:     30px !default;
+$spacing-unit:     4px !default;
 
 $text-color:       #111 !default;
 $background-color: #fdfdfd !default;
@@ -16,23 +18,31 @@ $grey-color:       #828282 !default;
 $grey-color-light: lighten($grey-color, 40%) !default;
 $grey-color-dark:  darken($grey-color, 25%) !default;
 
+$table-text-align: left !default;
+
 // Width of the content area
-$content-width:    800px !default;
+$content-width:    960px !default;
 
 $on-palm:          600px !default;
 $on-laptop:        800px !default;
 
+$hover-anim-duration: 0.2s;
+
 // Use media queries like this:
 // @include media-query($on-palm) {
-//     .wrapper {
-//         padding-right: $spacing-unit / 2;
-//         padding-left: $spacing-unit / 2;
-//     }
+//   .wrapper {
+//     padding-right: $spacing-unit / 2;
+//     padding-left: $spacing-unit / 2;
+//   }
 // }
 @mixin media-query($device) {
-    @media screen and (max-width: $device) {
-        @content;
-    }
+  @media screen and (max-width: $device) {
+    @content;
+  }
+}
+
+@mixin relative-font-size($ratio) {
+  font-size: $base-font-size * $ratio;
 }
 
 // Import partials.
@@ -41,3 +51,89 @@ $on-laptop:        800px !default;
   "minima/layout",
   "minima/syntax-highlighting"
 ;
+
+.post-container {
+	height: 200px;
+	// animation-name: CollapseHeight;
+	// animation-duration: $hover-anim-duration;
+}
+
+.post-container:hover {
+	height: 400px;
+	// animation-name: ExpandHeight;
+	// animation-duration: $hover-anim-duration;
+	.foreground {
+		padding-top: 100px;
+		h3 {
+			color: $text-color;
+			text-shadow: none;
+		}
+		p {
+			display: block;
+		}
+	}
+	.background {
+		top: -100px;
+		filter:opacity(20%);
+	}
+}
+
+.post-content {
+	position: relative;
+	overflow: hidden;
+	border-radius: 5px;
+	.foreground {
+		position: absolute;
+		padding: 1em 20%;
+		h3 {
+			color: white;
+			text-shadow: 0px 0px 4px black;
+		}
+		p {
+			display: none;
+		}
+	}
+	.background {
+		position: absolute;
+		//filter: opacity(50%);
+		top: -200px;
+		img {
+			width: $content-width;
+		}
+	}
+}
+.post-header {
+	div{
+		overflow: hidden;
+		height: 400px;
+		img {
+			position: relative;
+			top: -100px;
+			width: 100%;
+		}
+	}
+}
+//
+// .cover-image {
+// 	overflow: hidden;
+// 	height: 300px;
+// 	img {
+// 		top: -100px;
+// 	}
+// }
+// .cover-image:hover {
+// 	height: auto;
+// 	img {
+// 		top:auto;
+// 	}
+// }
+
+@keyframes CollapseHeight {
+	from {height : 400px};
+	to {height : 200px};
+}
+
+@keyframes ExpandHeight {
+	from {height : 200px};
+	to {height : 400px};
+}

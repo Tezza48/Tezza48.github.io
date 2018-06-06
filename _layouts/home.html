@@ -1,0 +1,43 @@
+---
+layout: default
+---
+
+<div class="home">
+	{%- if page.title -%}
+	<h1 class="page-heading">{{ page.title }}</h1>
+	{%- endif -%}
+
+	{{ content }}
+
+	{%- if site.posts.size > 0 -%}
+	<h2 class="post-list-heading">{{ page.list_title | default: "Projects" }}</h2>
+	<ul class="post-list">
+		{%- for post in site.posts -%}
+		<li class="post-content">
+			<a class="post-link" href="{{ post.url | relative_url }}">
+				<div class="post-container">
+					<div class="background">
+						{%- if post.coverimage != "" -%}
+							<img src="{{ post.coverimage | relative_url }}">
+						{%- else -%}
+							<img src="img/cat.jpg">
+						{%- endif -%}
+					</div>
+					<div class="foreground">
+						<h3>
+							{{ post.title | escape }}
+						</h3>
+						{%- if site.show_excerpts -%}
+						{{ post.excerpt }}
+						{%- endif -%}
+					</div>
+				</div>
+			</a>
+		</li>
+		{%- endfor -%}
+	</ul>
+
+	<p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | relative_url }}">via RSS</a></p>
+	{%- endif -%}
+
+</div>
