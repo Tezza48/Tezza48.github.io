@@ -1,5 +1,5 @@
 ---
-layout: "post"
+layout: "portfolio"
 title: "Text Adventure"
 coverimage: "img/portfolio/text-adventure/text-adventure.jpg"
 ---

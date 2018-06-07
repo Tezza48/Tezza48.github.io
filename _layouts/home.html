@@ -9,10 +9,10 @@ layout: default
 
 	{{ content }}
 
-	{%- if site.posts.size > 0 -%}
+	{%- if site.portfolio.size > 0 -%}
 	<h2 class="post-list-heading">{{ page.list_title | default: "Projects" }}</h2>
-	<ul class="post-list">
-		{%- for post in site.posts -%}
+	<ul class="post-list portfolio">
+		{%- for post in site.portfolio -%}
 		<li class="post-content">
 			<a class="post-link" href="{{ post.url | relative_url }}">
 				<div class="post-container">
@@ -28,7 +28,7 @@ layout: default
 							{{ post.title | escape }}
 						</h3>
 						{%- if site.show_excerpts -%}
-						{{ post.excerpt }}
+							{{ post.excerpt }}
 						{%- endif -%}
 					</div>
 				</div>

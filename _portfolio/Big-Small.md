@@ -1,5 +1,5 @@
 ---
-layout: "post"
+layout: "portfolio"
 title: "Big Small Generator"
 coverimage: "img/portfolio/big-small/big-small-fullspawn.jpg"
 ---
@@ -8,4 +8,4 @@ The Big Small Generator is the Dungeon generator I used for a roguelike programm
 
 <!--more-->
 
-Wheras my other dungeon generators used tiles with walls and floors, this generator uses Big, Medium and Small sized tiles for walls and floors.
+Whereas my other dungeon generators used tiles with walls and floors, this generator uses Big, Medium and Small sized tiles for walls and floors.

@@ -1,0 +1,30 @@
+---
+layout: default
+---
+<article class="portfolio h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+	<header class="post-header">
+		{%- if page.coverimage != "" -%}
+			<div><img src="{{ page.coverimage | relative_url }}" alt=""></div>
+		{%- else -%}
+			<div><img src="/img/cat.jpg" alt=""></div>
+		{%- endif -%}
+		<br>
+		<h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+		<p class="post-meta">
+			{%- if page.author -%}
+				• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
+			{%- endif -%}
+		</p>
+		<hr>
+	</header>
+	<div class="post-content e-content" itemprop="articleBody">
+		{{ content }}
+	</div>
+
+	{%- if site.disqus.shortname -%}
+		{%- include disqus_comments.html -%}
+	{%- endif -%}
+
+	<a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
+</article>

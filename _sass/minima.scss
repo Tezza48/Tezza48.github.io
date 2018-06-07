@@ -52,16 +52,15 @@ $hover-anim-duration: 0.2s;
   "minima/syntax-highlighting"
 ;
 
+$imgtop: -20%;
+$imgtop-hover: -5%;
+
 .post-container {
 	height: 200px;
-	// animation-name: CollapseHeight;
-	// animation-duration: $hover-anim-duration;
 }
 
 .post-container:hover {
 	height: 400px;
-	// animation-name: ExpandHeight;
-	// animation-duration: $hover-anim-duration;
 	.foreground {
 		padding-top: 100px;
 		h3 {
@@ -73,7 +72,7 @@ $hover-anim-duration: 0.2s;
 		}
 	}
 	.background {
-		top: -100px;
+		top: $imgtop;
 		filter:opacity(20%);
 	}
 }
@@ -96,7 +95,7 @@ $hover-anim-duration: 0.2s;
 	.background {
 		position: absolute;
 		//filter: opacity(50%);
-		top: -200px;
+		top: $imgtop;
 		img {
 			width: $content-width;
 		}
@@ -108,7 +107,7 @@ $hover-anim-duration: 0.2s;
 		height: 400px;
 		img {
 			position: relative;
-			top: -100px;
+			//top: -100px;
 			width: 100%;
 		}
 	}
