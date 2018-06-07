@@ -35,6 +35,14 @@ collections:
     portfolio:
         output: true
 
+# custom_nav:
+#     blog:
+#         url: https://willterry.me
+#     youtube:
+#         url: https://www.youtube.com/channel/UC0GYlbWIDQrghnn25gQd0AQ?view_as=subscriber
+custom_nav:
+    Blog: https://willterry.me
+
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
 # to override the default setting.
