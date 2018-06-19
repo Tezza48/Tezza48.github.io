@@ -4,13 +4,18 @@ layout: default
 <article class="portfolio h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
 	<header class="post-header">
-		{%- if page.coverimage != "" -%}
-			<div><img src="{{ page.coverimage | relative_url }}" alt=""></div>
-		{%- else -%}
-			<div><img src="/img/cat.jpg" alt=""></div>
-		{%- endif -%}
+		<div class="title-section">
+			<h1 class="post-title p-name left" itemprop="name headline">{{ page.title | escape }}</h1>
+			{%- if page.webgl -%}
+				<h1 class="right"><a href="{{page.webgl}}">Play Now</a></h1>
+			{%- endif -%}
+		</div>
 		<br>
-		<h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+		{%- if page.coverimage  -%}
+		<div class="cover-image"><img src="{{ page.coverimage | relative_url }}" alt=""></div>
+		{%- else -%}
+		<div><img src="/img/cat.jpg" alt=""></div>
+		{%- endif -%}
 		<p class="post-meta">
 			{%- if page.author -%}
 				• <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
@@ -21,7 +26,10 @@ layout: default
 	<div class="post-content e-content" itemprop="articleBody">
 		{{ content }}
 	</div>
-
+	{%- if page.youtube -%}
+		<br>
+		<iframe class="youtube-embed" src="{{ page.youtube }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+	{%- endif -%}
 	{%- if site.disqus.shortname -%}
 		{%- include disqus_comments.html -%}
 	{%- endif -%}

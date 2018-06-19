@@ -2,6 +2,7 @@
 layout: "portfolio"
 title: "Rendering Engine"
 coverimage: "https://willterry740941853.files.wordpress.com/2017/04/textured-sponza-nighttime.png"
+youtube: https://www.youtube-nocookie.com/embed/HozQLePqlsE?rel=0
 ---
 For my Dissertation I wrote a Rendering Engine in C++ with DirectX 11. I had originally intended to use DirectX 12 however I quickly realized that it was too big of a task, especially for someone new to rendering.
 

@@ -102,16 +102,37 @@ $imgtop-hover: -5%;
 	}
 }
 .post-header {
-	div{
-		overflow: hidden;
-		height: 400px;
+  .title-section{
+    width: 100%;
+    float: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    .left{
+      float: left;
+      width: 50%;
+      text-align: left;
+    }
+    .right {
+      float: right;
+      text-align: right;
+      right: 0px;
+    }
+  }
+	.cover-image {
 		img {
-			position: relative;
-			//top: -100px;
 			width: 100%;
 		}
 	}
 }
+
+.youtube-embed{
+  width: 560px;
+  height: 315px;
+
+  margin-left: ($content-width - 560)/2;
+//  margin-right: 50%;
+}
+
 //
 // .cover-image {
 // 	overflow: hidden;

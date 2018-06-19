@@ -2,6 +2,7 @@
 layout: "portfolio"
 title: "Big Small Generator"
 coverimage: "img/portfolio/big-small/big-small-fullspawn.jpg"
+webgl: http://tezza48.github.io/RoguelikeDungeon_BigAndSmall/
 ---
 
 The Big Small Generator is the Dungeon generator I used for a roguelike programming Module at University. The build features a demonstration of the dungeon generator's individual steps with variables the user can change.
