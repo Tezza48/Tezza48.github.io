@@ -42,7 +42,7 @@ collections:
 #         url: https://www.youtube.com/channel/UC0GYlbWIDQrghnn25gQd0AQ?view_as=subscriber
 custom_nav:
     Blog: https://willterry.me
-    CV: "/pdf/William Terry - CV Web.pdf"
+    CV: /pdf/William_Terry_CV_Web_24-06-2018.pdf
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list
