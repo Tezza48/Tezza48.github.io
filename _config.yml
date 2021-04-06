@@ -41,7 +41,7 @@ collections:
 #     youtube:
 #         url: https://www.youtube.com/channel/UC0GYlbWIDQrghnn25gQd0AQ?view_as=subscriber
 custom_nav:
-    Blog: https://willterry.me
+    #Blog: https://willterry.me
     CV: /pdf/William_Terry_CV_Web_24-06-2018.pdf
 
 # Exclude from processing.
