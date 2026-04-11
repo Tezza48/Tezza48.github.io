@@ -1,0 +1,11 @@
+.page {
+    display: none;
+}
+
+.page:target {
+    display: block;
+}
+
+body:not(:has(:target)) #home {
+    display: block;
+}
