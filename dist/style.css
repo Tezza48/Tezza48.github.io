@@ -1,0 +1,14 @@
+html,
+body {
+    height: 100%
+}
+
+html {
+    scroll-behavior: auto;
+}
+
+body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+}
