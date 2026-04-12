@@ -30,21 +30,25 @@ const char *sitename = "Tezza48's page";
 
 void render_header(sb_t *sb)
 {
-    TAG("header", "")
+    TAG("header", "class=\"d-flex justify-content-between align-items-center px-4 py-2 border-bottom\"")
     {
-        TEXT("span", sitename, "");
+        TEXT("span", sitename, "class=\"fw-semibold\"");
+
+#define DECORATION " class=\"link-light text-decoration-none\""
 
         struct
         {
             char *txt;
             char *attribs;
         } links[] = {
-            {"home", "href=\"#home\""},
-            {"about", "href=\"#about\""},
-            {"github", "href=\"https://github.com/tezza48\""},
+            {"home", "href=\"#home\"" DECORATION},
+            {"about", "href=\"#about\"" DECORATION},
+            {"github", "href=\"https://github.com/tezza48\"" DECORATION},
         };
 
-        TAG("nav", "class=\"navbar\"")
+#undef DECORATION
+
+        TAG("nav", "class=\"d-flex gap-3\"")
         {
             for (size_t i = 0; i < sizeof(links) / sizeof(*links); i++)
             {
@@ -56,19 +60,22 @@ void render_header(sb_t *sb)
 
 void render_homepage(sb_t *sb)
 {
-    TAG("div", "class=\"hero\"")
+
+    TAG("section", "id=\"home\" class=\"page d-flex flex-column justify-content-center px-4\" style=\"min-height: 50vh\"")
     {
-        TEXT("h1", "Tezza 48", "");
-        TEXT("p", "Server Programmer by day | Everything Programmer by night", "");
-    }
-    TAG("div", "class=\"section\"")
-    {
+        TEXT("h1", "Tezza 48", "class=\"display-5 fw-semibold mb-1\"");
+        TEXT("p", "Server Programmer by day | Everything Programmer by night", "class=\"text-secondary mb-4\"");
     }
 }
 
 void render_aboutpage(sb_t *sb)
 {
-    TEXT("h2", "This is the About page", "");
+
+    TAG("section", "id=\"about\" class=\"page\"")
+    {
+        TEXT("h2", "About", "class=\"mb-3\"");
+        TEXT("p", "Some info about what i do", "");
+    }
 }
 
 void render(sb_t *sb)
@@ -81,17 +88,15 @@ void render(sb_t *sb)
         TAG("head", "")
         {
             TEXT("title", title, "");
+            ESC("link", "href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB\" crossorigin=\"anonymous\"");
             ESC("link", "rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\"");
         }
-        TAG("body", "")
+        TAG("body", "class=\"d-flex flex-column min-vh-100\"")
         {
             render_header(sb);
-            TAG("div", "id=\"home\" class=\"page\"")
+            TAG("main", "class=\"container d-flex flex-column flex-grow-1\"")
             {
                 render_homepage(sb);
-            }
-            TAG("div", "id=\"about\" class=\"page\"")
-            {
                 render_aboutpage(sb);
             }
         }

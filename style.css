@@ -1,12 +1,32 @@
+html,
+body {
+    height: 100%
+}
+
+html {
+    scroll-behavior: auto;
+}
+
+body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+}
+
+
 /* Client side routing styles */
 .page {
     display: none;
 }
 
 .page:target {
-    display: block;
+    display: flex;
 }
 
-body:not(:has(:target)) #home {
+#home {
+    display: flex;
+}
+
+body:has(.page:target) #home {
     display: block;
 }
