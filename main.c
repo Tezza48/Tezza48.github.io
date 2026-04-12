@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdarg.h>
 
+#include "sb.h"
+
 #ifdef _DEBUG
 size_t __allocs = 0;
 #define calloc(x, y) (__allocs++, calloc((x), (y)))
@@ -13,155 +15,99 @@ size_t __allocs = 0;
 #endif
 #define _log_allocs()
 
-typedef struct sb_node sb_node;
-struct sb_node
-{
-    char *str;
-    bool is_alloc;
-    sb_node *next;
-};
-typedef struct sb
-{
-    sb_node *head;
-    sb_node *tail;
-    size_t str_length;
-} sb;
-static void sb_append(sb *sb, char *str)
-{
-    sb_node *n = calloc(1, sizeof(*n));
-    n->str = str;
-    n->is_alloc = false;
+#define TAG(name, attribs)                                                    \
+    for (                                                                     \
+        int _once = (sb_appendf(STRINGBUILDER, "<%s %s>", name, attribs), 1); \
+        _once;                                                                \
+        (sb_appendf(STRINGBUILDER, "</%s>", name), _once = 0))
 
-    sb->str_length += strlen(str);
+#define TEXT(name, innerText, attribs) sb_appendf(STRINGBUILDER, "<%s %s>%s</%s>", name, attribs, innerText, name)
+#define ESC(name, attribs) sb_appendf(STRINGBUILDER, "<%s %s />", name, attribs)
 
-    if (sb->head == NULL)
+#define STRINGBUILDER sb
+
+const char *sitename = "Tezza48's page";
+
+void render_header(sb_t *sb)
+{
+    TAG("header", "")
     {
-        sb->head = n;
-        sb->tail = n;
-    }
-    else
-    {
-        sb->tail->next = n;
-        sb->tail = n;
-    }
-}
+        TEXT("span", sitename, "");
 
-static void sb_append_alloced(sb *sb, char *str)
-{
-    sb_append(sb, str);
-    sb->tail->is_alloc = true;
-}
-
-static void sb_appendln(sb *sb, char *str)
-{
-    size_t len = strlen(str);
-    char *buf = calloc(len + 2, sizeof(*buf));
-    memcpy(buf, str, len);
-    buf[len] = '\n';
-    buf[len + 1] = '\0';
-
-    sb_append_alloced(sb, buf);
-}
-
-static void sb_appendf(sb *sb, char *fmt, ...)
-{
-    va_list args1, args2;
-    va_start(args1, fmt);
-    va_copy(args2, args1);
-    int len = vsnprintf(NULL, 0, fmt, args1);
-    char *buf = calloc(len + 1, sizeof(*buf));
-    vsnprintf(buf, len + 1, fmt, args2);
-    va_end(args1);
-    va_end(args2);
-
-    sb_append_alloced(sb, buf);
-}
-
-static char *sb_to_str(sb *sb)
-{
-    char *buf = calloc(sb->str_length + 1, sizeof(*buf));
-    sb_node *n = sb->head;
-    do
-    {
-        strcat(buf, n->str);
-    } while (n = n->next);
-    return buf;
-}
-
-static inline void sb_free(sb *sb)
-{
-    sb_node *curr = sb->head;
-    while (curr)
-    {
-        if (curr->is_alloc)
+        struct
         {
-            free(curr->str);
+            char *txt;
+            char *attribs;
+        } links[] = {
+            {"home", "href=\"#home\""},
+            {"about", "href=\"#about\""},
+            {"github", "href=\"https://github.com/tezza48\""},
+        };
+
+        TAG("nav", "class=\"navbar\"")
+        {
+            for (size_t i = 0; i < sizeof(links) / sizeof(*links); i++)
+            {
+                TEXT("a", links[i].txt, links[i].attribs);
+            }
         }
-
-        sb_node *next = curr->next;
-        free(curr);
-        curr = next;
     }
-
-    sb->head = NULL;
-    sb->tail = NULL;
-    sb->str_length = 0;
 }
 
-#define TAG(psb, name, attribs)                                       \
-    for (                                                             \
-        int _once = (sb_appendf((psb), "<%s %s>", name, attribs), 1); \
-        _once;                                                        \
-        (sb_appendf((psb), "</%s>", name), _once = 0))
+void render_homepage(sb_t *sb)
+{
+    TAG("div", "class=\"hero\"")
+    {
+        TEXT("h1", "Tezza 48", "");
+        TEXT("p", "Server Programmer by day | Everything Programmer by night", "");
+    }
+    TAG("div", "class=\"section\"")
+    {
+    }
+}
 
-#define TEXT(psb, name, innerText, attribs) sb_appendf((psb), "<%s %s>%s</%s>", name, attribs, innerText, name)
-#define ESC(psb, name, attribs) sb_appendf((psb), "<%s %s />", name, attribs)
+void render_aboutpage(sb_t *sb)
+{
+    TEXT("h2", "This is the About page", "");
+}
 
-void render(sb *sb)
+void render(sb_t *sb)
 {
     char *title = "My HTML Website";
 
     sb_append(sb, "<!DOCTYPE html>\n");
-    TAG(sb, "html", "")
+    TAG("html", "")
     {
-        TAG(sb, "head", "")
+        TAG("head", "")
         {
-            TEXT(sb, "title", title, "");
-            ESC(sb, "link", "rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\"");
+            TEXT("title", title, "");
+            ESC("link", "rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\"");
         }
-        TAG(sb, "body", "")
+        TAG("body", "")
         {
-            char *pages[] = {
-                "home", "about", "github"};
-            char *page_attribs[] = {
-                "href=\"#home\"", "href=\"#about\"", "href=\"github.com/tezza48\""};
-            TAG(sb, "ul", "class=\"navbar\"")
+            render_header(sb);
+            TAG("div", "id=\"home\" class=\"page\"")
             {
-                for (size_t i = 0; i < sizeof(pages) / sizeof(*pages); i++)
-                {
-                    TAG(sb, "li", "")
-                    {
-                        TEXT(sb, "a", pages[i], page_attribs[i]);
-                    }
-                }
+                render_homepage(sb);
             }
-
-            TEXT(sb, "h1", title, "");
-            TAG(sb, "div", "id=\"home\" class=\"page\"")
+            TAG("div", "id=\"about\" class=\"page\"")
             {
-                TEXT(sb, "h2", "This is the Home page", "");
-            }
-            TAG(sb, "div", "id=\"about\" class=\"page\"")
-            {
-                TEXT(sb, "h2", "This is the About page", "");
+                render_aboutpage(sb);
             }
         }
     }
 }
+#undef STRINGBUILDER
+
+#define iter_argv(argc, argv, p_str) p_str = (argc) ? (argc--, *argv++) : NULL
 
 int main(int argc, char **argv)
 {
-    sb sb = {0};
+    char *bin;
+
+    iter_argv(argc, argv, bin);
+
+    sb_t sb = {0};
 
     render(&sb);
 
@@ -175,3 +121,5 @@ int main(int argc, char **argv)
 
     return 0;
 }
+
+#include "sb.c"
