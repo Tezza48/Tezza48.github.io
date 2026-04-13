@@ -112,7 +112,7 @@ void render_aboutpage(sb_t *sb)
             "on the frontend, creating games in Pixi.js authoring gamplay features, shaders/effects and even "
             "in-house game engines/frameworks.<br />"
             "I also program traditional games, though not as often as i would like. I take part in Global Games Jam "
-            "each year and publish those games on <a href=\"tezza48.itch.io\">my itch.io page</a>."
+            "each year and publish those games on <a href=\"http://tezza48.itch.io\">my itch.io page</a>."
             "<br />"
             "Though the majority of my recent projects have been in C i've used a number of languages in my career/personal projects including "
             "C++, Typescript, Python, C# and Rust.",
