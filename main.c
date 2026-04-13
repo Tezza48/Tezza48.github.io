@@ -127,7 +127,7 @@ void render_aboutpage(sb_t *sb)
 
 void render()
 {
-    char *title = "My HTML Website";
+    char *title = "Tezza 48";
 
     struct
     {
