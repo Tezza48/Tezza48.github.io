@@ -53,14 +53,21 @@ static void sb_appendf(sb_t *sb, char *fmt, ...)
     sb_append_alloced(sb, buf);
 }
 
-static char *sb_get(sb_t *sb)
+char *_build(sb_t *sb)
 {
+
     char *buf = calloc(sb->str_length + 1, sizeof(*buf));
     sb_node *n = sb->head;
     do
     {
         strcat(buf, n->str);
     } while (n = n->next);
+    return buf;
+}
+
+static char *sb_get(sb_t *sb)
+{
+    char *buf = _build(sb);
 
     if (sb->cached_str)
     {
@@ -69,6 +76,13 @@ static char *sb_get(sb_t *sb)
     }
     sb->cached_str = buf;
 
+    return buf;
+}
+
+static char *sb_flush(sb_t *sb)
+{
+    char *buf = _build(sb);
+    sb_free(sb);
     return buf;
 }
 

@@ -30,4 +30,9 @@ static void sb_appendf(sb_t *sb, char *fmt, ...);
 /// @return
 static char *sb_get(sb_t *sb);
 
+/// @brief Returns the built string, gives ownership to the calling code and frees the builder
+/// @param sb
+/// @return
+static char *sb_flush(sb_t *sb);
+
 static inline void sb_free(sb_t *sb);
