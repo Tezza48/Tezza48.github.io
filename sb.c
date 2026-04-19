@@ -53,7 +53,7 @@ static void sb_appendf(sb_t *sb, char *fmt, ...)
     sb_append_alloced(sb, buf);
 }
 
-static char *sb_to_str(sb_t *sb)
+static char *sb_get(sb_t *sb)
 {
     char *buf = calloc(sb->str_length + 1, sizeof(*buf));
     sb_node *n = sb->head;
@@ -61,6 +61,14 @@ static char *sb_to_str(sb_t *sb)
     {
         strcat(buf, n->str);
     } while (n = n->next);
+
+    if (sb->cached_str)
+    {
+        free(sb->cached_str);
+        sb->cached_str = 0;
+    }
+    sb->cached_str = buf;
+
     return buf;
 }
 
@@ -82,4 +90,6 @@ static inline void sb_free(sb_t *sb)
     sb->head = NULL;
     sb->tail = NULL;
     sb->str_length = 0;
+    free(sb->cached_str);
+    sb->cached_str = 0;
 }

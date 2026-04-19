@@ -1,0 +1,3 @@
+#! usr/bin/env bash
+
+npx nodemon --exec "cc website.c -o website && ./website" -e c
