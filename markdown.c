@@ -4,41 +4,7 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <memory.h>
-
-char *src = ""
-            "# This is a heading 1\n"
-            "## This is a heading 2\n"
-            "### This is a heading 3\n"
-            "#### This is a heading 4\n"
-            "##### This is a heading 5\n"
-            "###### This is a heading 6\n"
-            "This is a paragraph\n"
-            " * this is an unordered list\n"
-            "\n"
-            "\n"
-            "There's a break above this line\n"
-            "This line has no trailing newline";
-
-typedef struct ml_node ml_node;
-
-struct ml_node
-{
-    char *line;
-    ml_node *next;
-};
-
-typedef struct
-{
-    ml_node *head;
-    ml_node *tail;
-} ml_list;
-
-#define list_add(pl) (                                       \
-    (pl)->tail = *(                                          \
-        (pl)->tail                                           \
-            ? &(pl)->tail->next                              \
-            : &(pl)->head) = calloc(1, sizeof(*(pl)->head)), \
-    (pl)->tail)
+#include "sb.h"
 
 #define trim_space(str)     \
     while (isspace(*(str))) \
@@ -58,11 +24,6 @@ typedef struct
         str++;                           \
         *(p_count) += 1;                 \
     }
-
-static inline void add_literal(ml_list *list, char *literal)
-{
-    list_add(list)->line = strdup(literal);
-}
 
 char *classify_tag(char **token)
 {
@@ -88,11 +49,9 @@ char *classify_tag(char **token)
     return "p";
 }
 
-int main(int argc, char **argv)
+char *parse_markdown(char *src)
 {
-    printf("Full Src: \n\n\"%s\"\n", src);
-
-    ml_list lines = {0};
+    sb_t sb = {0};
     // Copy the src string because we're going to be splitting it with null terminators
     // TODO WT: Operate with string slices so that we can avoid allocating a new string to parse.
     char *copy = strdup(src);
@@ -130,10 +89,9 @@ int main(int argc, char **argv)
         if (*src_token == '\n')
         {
             *src_token = '\0';
-            // Also we increment past it so the next loop iteration doesnt re parse this line. ONLY if it was not the REAL null terminator
+            // Also we increment past it so the next loop iteration doesn't re parse this line. ONLY if it was not the REAL null terminator
             src_token += 1;
         }
-        printf("Src Line: len:%zu, %s\n", strlen(line_start), line_start);
 
         // Determine a tag for the string to be placed in whilst updating the line start
         char *tag = "p";
@@ -152,26 +110,20 @@ int main(int argc, char **argv)
             {
                 if (!isList)
                 {
-                    add_literal(&lines, "<ul>\n");
+                    sb_appendf(&sb, "<ul>\n");
                 }
                 isList = true;
             }
             else if (isList)
             {
-                add_literal(&lines, "</ul>\n");
+                sb_appendf(&sb, "</ul>\n");
                 isList = false;
             }
 
             trim_space(line_start);
             char *rendered = NULL;
 
-#define LINE_PRINTF_ARGS "%*s<%s>%s</%s>\n", ((thisIndent + 1) / 2) * 2, "", tag, line_start, tag
-            size_t len = snprintf(rendered, 0, LINE_PRINTF_ARGS);
-            rendered = calloc(len + 1, sizeof(*rendered));
-            snprintf(rendered, len + 1, LINE_PRINTF_ARGS);
-#undef LINE_PRINTF_ARGS
-
-            list_add(&lines)->line = rendered;
+            sb_appendf(&sb, "%*s<%s>%s</%s>\n", ((thisIndent + 1) / 2) * 2, "", tag, line_start, tag);
         }
 
         line_start = src_token;
@@ -180,19 +132,44 @@ int main(int argc, char **argv)
     // Add in a closing list tag if the last line of the src was a list item.
     if (isList)
     {
-        add_literal(&lines, "</ul>\n");
-    }
-
-    for (ml_node *node = lines.head; node;)
-    {
-        printf("Rendered Line: %s", node->line);
-        free(node->line);
-        ml_node *next = node->next;
-        free(node);
-        node = next;
+        sb_appendf(&sb, "</ul>\n");
     }
 
     free(copy);
 
-    return 0;
+    return sb_flush(&sb);
 }
+
+int main(int argc, char **argv)
+{
+    size_t buf_cap = 256;
+    size_t buf_len = 0;
+    char *buf = malloc(buf_cap * sizeof(*buf));
+    int c = 0;
+
+    while ((c = fgetc(stdin)) != EOF)
+    {
+        if (buf_len + 1 > buf_cap)
+        {
+            buf_cap *= 2;
+            buf = realloc(buf, buf_cap * sizeof(*buf));
+        }
+        buf[buf_len++] = (char)c;
+    }
+
+    if (buf)
+    {
+        buf[buf_len] = 0;
+    }
+
+    printf("STD In: %s\n---\n", buf);
+
+    char *markdown = parse_markdown(buf);
+    printf(markdown);
+
+    free(markdown);
+
+    free(buf);
+}
+
+#include "sb.c"
