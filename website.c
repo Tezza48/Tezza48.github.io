@@ -1,21 +1,48 @@
-#include <stdio.h>
 #include <stdlib.h>
+
+#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <stdint.h>
+#include <glob.h>
 
 #include "sb.h"
 #include "html.h"
+#include "markdown.h"
+#include <assert.h>
 
 #ifdef _DEBUG
 size_t __allocs = 0;
 #define calloc(x, y) (__allocs++, calloc((x), (y)))
+#define malloc(x) (__allocs++, malloc((x)))
 #define free(x) (__allocs--, free((x)))
 
 #define _log_allocs() printf("Allocs still alive: %zu\n", __allocs);
-#endif
+#else
 #define _log_allocs()
+#endif
+
+#define arr_push(p_arr, rvalue)                                                            \
+    do                                                                                     \
+    {                                                                                      \
+        if (0 == (p_arr)->data)                                                            \
+        {                                                                                  \
+            (p_arr)->cap = 64;                                                             \
+            (p_arr)->data = malloc((p_arr)->cap * sizeof(*(p_arr)->data));                 \
+        }                                                                                  \
+        if ((p_arr)->len == (p_arr)->cap)                                                  \
+        {                                                                                  \
+            (p_arr)->cap *= 2;                                                             \
+            (p_arr)->data = realloc((p_arr)->data, (p_arr)->cap * sizeof(*(p_arr)->data)); \
+        }                                                                                  \
+        (p_arr)->data[(p_arr)->len++] = (rvalue);                                          \
+    } while (0)
+
+#define arr_pop(p_arr) (assert((p_arr)->len > 0), (p_arr)->data[--(p_arr)->len])
+
+#define arr_free(p_arr) (free((p_arr)->data), (p_arr)->len = 0, (p_arr)->cap = 0, 0)
 
 #define STRINGBUILDER sb
 
@@ -24,6 +51,14 @@ const char *sitename = "Tezza48's page";
 static inline size_t size_min(size_t a, size_t b)
 {
     return a < b ? a : b;
+}
+// TODO WT: Swap to slices/views
+void str_filename_noext(char *str, char **out_basename, size_t *out_basename_len)
+{
+    char *basename = strrchr(str, '/') + 1;
+    char *dot = strrchr(basename, '.');
+    *out_basename = basename;
+    *out_basename_len = (size_t)(dot - basename);
 }
 
 typedef struct list_node list_node;
@@ -61,7 +96,9 @@ static void list_free(list *l)
         list_node *next = curr->next;
 
         free(curr->body);
+        curr->body = 0;
         free(curr->path);
+        curr->path = 0;
 
         free(curr);
         curr = next;
@@ -85,45 +122,55 @@ char *read_file(const char *const path)
     return buf;
 }
 
-list load_files_in_dir_into_list(const char *const dirname)
+typedef struct
 {
-    list l = {0};
-    DIR *dir = opendir(dirname);
+    char filename[256];
+    char *src;
+    char *rendered;
+    char *preview;
+} blog_file;
+typedef struct
+{
+    blog_file *data;
+    size_t len, cap;
+} blog_files;
 
-    char src_fullpath[512];
-    struct dirent *d = NULL;
-    while (d = readdir(dir))
+blog_files load_blog_files()
+{
+    blog_files files = {0};
+
+    glob_t g;
+    glob("blog/*.md", 0, NULL, &g);
+
+    for (size_t i = g.gl_pathc - 1; i != -1; i--)
     {
-        snprintf(src_fullpath, 512, "%s/%s", dirname, d->d_name);
+        blog_file f = {0};
+        memcpy(f.filename, g.gl_pathv[i], sizeof(f.filename));
+        f.src = read_file(f.filename);
 
-        struct stat s;
-        stat(src_fullpath, &s);
+        f.rendered = parse_markdown(f.src);
+        char *preview_src = strndup(f.src, 200);
+        f.preview = parse_markdown(preview_src);
+        free(preview_src);
 
-        if (!S_ISREG(s.st_mode))
-            continue;
-
-        char *fmt = "dist/%s";
-        char *p = NULL;
-        size_t len = snprintf(p, 0, fmt, d->d_name);
-        p = calloc(len + 1, sizeof(*p));
-        snprintf(p, len + 1, fmt, d->d_name);
-
-        sb_t *sb = &((sb_t){0});
-        char *b = read_file(src_fullpath);
-        section("")
-        {
-            sb_appendf(sb, b);
-        }
-
-        list_add(&l, p, sb_get(sb));
-        sb_free(sb);
-        free(b);
-        free(p);
+        arr_push(&files, f);
     }
 
-    closedir(dir);
+    globfree(&g);
 
-    return l;
+    return files;
+}
+
+void free_blog_files(blog_files *files)
+{
+    while (files->len)
+    {
+        blog_file f = arr_pop(files);
+        free(f.src);
+        free(f.rendered);
+        free(f.preview);
+    }
+    arr_free(files);
 }
 
 void render_header(sb_t *sb)
@@ -158,7 +205,7 @@ void render_header(sb_t *sb)
     }
 }
 
-char *render_index(char *latest_blog_path, char *latest_blog_body)
+char *render_index(blog_file latest_blog)
 {
     sb_t *sb = &(sb_t){0};
     sb_append(sb, read_file("partial/index.html"));
@@ -166,19 +213,16 @@ char *render_index(char *latest_blog_path, char *latest_blog_body)
     {
         h1("Latest Blog Post", "");
         char attribs[512];
-        snprintf(attribs, 512, "href=\"%s\"", latest_blog_path + strlen("dist/"));
-        section("")
+
+        char *basename = NULL;
+        size_t len = 0;
+        str_filename_noext(latest_blog.filename, &basename, &len);
+        snprintf(attribs, 512, "href=\"%.*s.html\"", len, basename);
+        TAG("a", attribs)
         {
-            TAG("a", attribs)
+            TAG("div", "")
             {
-                char preview[204];
-                memset(preview, 0, 204);
-                memcpy(preview, latest_blog_body, size_min(strlen(latest_blog_body), 200));
-                preview[200] = '.';
-                preview[201] = '.';
-                preview[202] = '.';
-                preview[203] = '\0';
-                sb_appendf(sb, preview);
+                sb_appendf(sb, latest_blog.preview);
             }
         }
     }
@@ -186,7 +230,7 @@ char *render_index(char *latest_blog_path, char *latest_blog_body)
     return sb_flush(sb);
 }
 
-char *render_blog_posts(list *l)
+char *render_blog_posts(blog_files *blogs)
 {
     sb_t *sb = &(sb_t){0};
 
@@ -195,23 +239,20 @@ char *render_blog_posts(list *l)
         h1("Blog Posts", "");
         TAG("ul", "")
         {
-            for (list_node *node = l->head; node; node = node->next)
+            for (size_t i = 0; i < blogs->len; i++)
             {
+                blog_file blog = blogs->data[i];
                 TAG("li", "class=\"mb-1\" style=\"min-height: 20vh\"")
                 {
                     char attribs[512];
-                    snprintf(attribs, 512, "href=\"%s\"", node->path + strlen("dist/"));
+
+                    char *basename = NULL;
+                    size_t len = 0;
+                    str_filename_noext(blog.filename, &basename, &len);
+                    snprintf(attribs, 512, "href=\"%.*s.html\"", len, basename);
                     TAG("a", attribs)
                     {
-                        char preview[204];
-                        memset(preview, 0, 204);
-
-                        memcpy(preview, node->body, size_min(strlen(node->body), 200));
-                        preview[200] = '.';
-                        preview[201] = '.';
-                        preview[202] = '.';
-                        preview[203] = '\0';
-                        sb_appendf(sb, preview);
+                        sb_appendf(sb, blog.preview);
                     }
                 }
             }
@@ -225,18 +266,24 @@ void render()
 {
     char *title = "Tezza 48";
 
-    list blog_posts = load_files_in_dir_into_list("blog/");
+    blog_files blogs = load_blog_files();
 
     list l = {0};
 
-    for (list_node *node = blog_posts.head; node; node = node->next)
+    for (size_t i = 0; i < blogs.len; i++)
     {
-        list_add(&l, node->path, node->body);
+        blog_file *blog = &blogs.data[i];
+        char dist_path[512];
+        char *basename = NULL;
+        size_t len = 0;
+        str_filename_noext(blog->filename, &basename, &len);
+        snprintf(dist_path, 512, "dist/%.*s.html", len, basename);
+        list_add(&l, dist_path, blog->rendered);
     }
 
     // TODO WT: Arena would pull a lot of weight in this file
 
-    char *index = render_index(blog_posts.head->path, blog_posts.head->body);
+    char *index = render_index(blogs.data[0]);
     list_add(&l, "dist/index.html", index);
     free(index);
 
@@ -244,13 +291,13 @@ void render()
     list_add(&l, "dist/about.html", about);
     free(about);
 
-    char *blog = render_blog_posts(&blog_posts);
+    char *blog = render_blog_posts(&blogs);
     list_add(&l, "dist/blog.html", blog);
     free(blog);
 
-    list_free(&blog_posts);
-
     sb_t *sb = &(sb_t){0};
+
+    free_blog_files(&blogs);
 
     for (list_node *node = l.head; node; node = node->next)
     {
@@ -303,3 +350,4 @@ int main(int argc, char **argv)
 }
 
 #include "sb.c"
+#include "markdown.c"

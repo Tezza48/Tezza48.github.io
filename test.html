@@ -1,14 +1,45 @@
-<h1>This is a heading 1</h1>
-<h2>This is a heading 2</h2>
-<h3>This is a heading 3</h3>
-<h4>This is a heading 4</h4>
-<h5>This is a heading 5</h5>
-<h6>This is a heading 6</h6>
-<p>This is a paragraph</p>
+<h1>We have a Blog now!</h1>
+
+<p><em>2026 04 19</em></p>
+
+<p>That's right, i've added a blog to this site. I have some questions and answers to get started.
+Is it well written? No
+Is it buggy? Yes
+Is it going to be improved ASAP? Yes
+To start with it's probably a good idea to talk about the whole site, then we will chat about the new blog.</p>
+
+<h2>This Website</h2>
+
+<p>In short the point of this site is to:</p>
+
 <ul>
-  <li>this is an unordered list</li>
-  <li>a second item in the list</li>
+<li>Serve as a dev log for the many little projects i work on for fun</li>
+<li>Serve as a real (ish) C program that i will need to maintain, improve and scale</li>
 </ul>
-<br>
-<p>There's a break above this line</p>
-<p>This line has no trailing newline</p>
+
+<p>So, let's actually talk about how this site is written.</p>
+
+<p>So far, i've implemented a super basic static site generator, it's super minimal, clunky and lazy however it works.</p>
+
+<p>Firstly, there's a linked list based string builder, this is the main feature that makes it work. On top of that ive
+got a bunch of macros to make its somewhat simple to hard code some HTML inside the c source code.</p>
+
+<p>Secondly (this is the foundation of the blog) I've added some basic file loading, I'm using this to load a partial
+file for <a href="/index.html">index.html</a>, the static content is just an HTML file and in the compiler/generator
+i append a preview of the latest post. Additionally the blog post content is loaded from disc and pasted directly
+into some hard coded html strings.</p>
+
+<p>Currently the way the blog posts are loaded and even sorted is entirely based on the order that</p>
+
+<p><code>readdir()</code> returns the files inside the blog folder. As i said it's lazy and probably going to break but it works for now.
+There's also no support for markdown yet. I considered writing blog posts in markdown loading them into script tags and
+using a third party client side renderer. I've decided not to do that; I would rather approach things like this as
+improvements i will make along the way and program myself.</p>
+
+<p>That's all for now. This blog isn't going to be super wordy, I want it to be concise and more of a brain dump.</p>
+
+<hr>
+
+<blockquote>
+Edit: This has been mostly converted to Markdown!
+</blockquote>

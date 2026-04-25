@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <memory.h>
 #include "sb.h"
+#include "markdown.h"
 
 #define trim_space(str)     \
     while (isspace(*(str))) \
@@ -40,7 +41,7 @@ char *classify_tag(char **token)
 
         return levels[level];
     }
-    else if ((*token)[0] == '*' && (*token)[1] == ' ')
+    else if (((*token)[0] == '*' || (*token)[0] == '-') && (*token)[1] == ' ')
     {
         (*token)++;
         return "li";
@@ -51,13 +52,13 @@ char *classify_tag(char **token)
 
 char *parse_markdown(char *src)
 {
-#define try_end_list(p_isList)         \
-    do                                 \
-        if (*(p_isList))               \
-        {                              \
-            sb_append(&sb, "</ul>\n"); \
-            *(p_isList) = false;       \
-        }                              \
+#define try_end_list(p_isList)          \
+    do                                  \
+        if (*(p_isList))                \
+        {                               \
+            sb_appendf(&sb, "</ul>\n"); \
+            *(p_isList) = false;        \
+        }                               \
     while (0)
 
     sb_t sb = {0};
@@ -111,7 +112,7 @@ char *parse_markdown(char *src)
             {
                 if (!isList)
                 {
-                    sb_append(&sb, "<ul>\n");
+                    sb_appendf(&sb, "<ul>\n");
                 }
                 isList = true;
             }
@@ -136,7 +137,7 @@ char *parse_markdown(char *src)
         {
             // We need to try and end a list before rendering any non list line.
             try_end_list(&isList);
-            sb_append(&sb, "<br>\n");
+            sb_appendf(&sb, "<br>\n");
         }
 
         line_start = src_token;
@@ -145,44 +146,10 @@ char *parse_markdown(char *src)
     // Add in a closing list tag if the last line of the src was a list item.
     if (isList)
     {
-        sb_append(&sb, "</ul>\n");
+        sb_appendf(&sb, "</ul>\n");
     }
 
     free(copy);
 
     return sb_flush(&sb);
 }
-
-int main(int argc, char **argv)
-{
-    // TODO WT: remove this entry point, add a header and integrate into "website"
-
-    size_t buf_cap = 256;
-    size_t buf_len = 0;
-    char *buf = malloc(buf_cap * sizeof(*buf));
-    int c = 0;
-
-    while ((c = fgetc(stdin)) != EOF)
-    {
-        if (buf_len + 1 > buf_cap)
-        {
-            buf_cap *= 2;
-            buf = realloc(buf, buf_cap * sizeof(*buf));
-        }
-        buf[buf_len++] = (char)c;
-    }
-
-    if (buf)
-    {
-        buf[buf_len] = 0;
-    }
-
-    char *markdown = parse_markdown(buf);
-    printf(markdown);
-
-    free(markdown);
-
-    free(buf);
-}
-
-#include "sb.c"
