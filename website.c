@@ -64,11 +64,10 @@ void str_filename_noext(char *str, char **out, size_t *out_len)
 char *read_file(const char *const path)
 {
     FILE *f = fopen(path, "r");
-    char *buf = NULL;
     fseek(f, 0, SEEK_END);
     size_t len = ftell(f);
     rewind(f);
-    buf = malloc((len + 1) * sizeof(*buf));
+    char *buf = calloc(len + 1, sizeof(*buf));
     fread(buf, len, sizeof(*buf), f);
     fclose(f);
 
@@ -98,13 +97,14 @@ blog_files load_blog_files()
     for (int i = (int)g.gl_pathc - 1; i >= 0; i--)
     {
         blog_file f = {0};
-        memcpy(f.filename, g.gl_pathv[i], sizeof(f.filename));
+        memcpy(f.filename, g.gl_pathv[i], size_min(sizeof(f.filename), strlen(g.gl_pathv[i])));
         f.src = read_file(f.filename);
 
         // TODO WT: Would be nice to wrap the blog posts so that styling can be applied to them
 
         f.rendered = parse_markdown(f.src);
-        char *preview_src = strndup(f.src, 200);
+        size_t preview_len = size_min(strlen(f.src), 200);
+        char *preview_src = strndup(f.src, preview_len);
         f.preview = parse_markdown(preview_src);
         free(preview_src);
 
@@ -245,6 +245,7 @@ void render_page_to_dist(char *filename, char *content)
 
     FILE *f = fopen(filename, "w+");
     fwrite(rendered, sizeof(char), strlen(rendered), f);
+    free(rendered);
 }
 
 void move_static_files(void)

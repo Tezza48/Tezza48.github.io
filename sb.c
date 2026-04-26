@@ -57,7 +57,6 @@ void sb_appendf(sb_t *sb, char *fmt, ...)
 
 char *_build(sb_t *sb)
 {
-
     char *buf = calloc(sb->str_length + 1, sizeof(*buf));
     sb_node *n = sb->head;
     do
@@ -106,6 +105,9 @@ void sb_free(sb_t *sb)
     sb->head = NULL;
     sb->tail = NULL;
     sb->str_length = 0;
-    free(sb->cached_str);
-    sb->cached_str = 0;
+    if (sb->cached_str)
+    {
+        free(sb->cached_str);
+        sb->cached_str = 0;
+    }
 }
