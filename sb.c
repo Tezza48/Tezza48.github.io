@@ -1,8 +1,10 @@
 #include "sb.h"
 #include <stdbool.h>
 #include <stdarg.h>
+#include <string.h>
+#include <stdio.h>
 
-static void sb_append(sb_t *sb, char *str)
+void sb_append(sb_t *sb, char *str)
 {
     sb_node *n = calloc(1, sizeof(*n));
     n->str = str;
@@ -22,13 +24,13 @@ static void sb_append(sb_t *sb, char *str)
     }
 }
 
-static void sb_append_alloced(sb_t *sb, char *str)
+void sb_append_alloced(sb_t *sb, char *str)
 {
     sb_append(sb, str);
     sb->tail->is_alloc = true;
 }
 
-static void sb_appendln(sb_t *sb, char *str)
+void sb_appendln(sb_t *sb, char *str)
 {
     size_t len = strlen(str);
     char *buf = calloc(len + 2, sizeof(*buf));
@@ -39,7 +41,7 @@ static void sb_appendln(sb_t *sb, char *str)
     sb_append_alloced(sb, buf);
 }
 
-static void sb_appendf(sb_t *sb, char *fmt, ...)
+void sb_appendf(sb_t *sb, char *fmt, ...)
 {
     va_list args1, args2;
     va_start(args1, fmt);
@@ -61,11 +63,11 @@ char *_build(sb_t *sb)
     do
     {
         strcat(buf, n->str);
-    } while (n = n->next);
+    } while ((n = n->next, n));
     return buf;
 }
 
-static char *sb_get(sb_t *sb)
+char *sb_get(sb_t *sb)
 {
     char *buf = _build(sb);
 
@@ -79,14 +81,14 @@ static char *sb_get(sb_t *sb)
     return buf;
 }
 
-static char *sb_flush(sb_t *sb)
+char *sb_flush(sb_t *sb)
 {
     char *buf = _build(sb);
     sb_free(sb);
     return buf;
 }
 
-static inline void sb_free(sb_t *sb)
+void sb_free(sb_t *sb)
 {
     sb_node *curr = sb->head;
     while (curr)

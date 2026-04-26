@@ -17,22 +17,22 @@ typedef struct sb_s
     char *cached_str;
 } sb_t;
 
-static void sb_append(sb_t *sb, char *str);
+void sb_append(sb_t *sb, char *str);
 
-static void sb_append_alloced(sb_t *sb, char *str);
+void sb_append_alloced(sb_t *sb, char *str);
 
-static void sb_appendln(sb_t *sb, char *str);
+void sb_appendln(sb_t *sb, char *str);
 
-static void sb_appendf(sb_t *sb, char *fmt, ...);
+void sb_appendf(sb_t *sb, char *fmt, ...);
 
 /// @brief Returns the built string, cached internally
 /// @param sb
 /// @return
-static char *sb_get(sb_t *sb);
+char *sb_get(sb_t *sb);
 
 /// @brief Returns the built string, gives ownership to the calling code and frees the builder
 /// @param sb
 /// @return
-static char *sb_flush(sb_t *sb);
+char *sb_flush(sb_t *sb);
 
-static inline void sb_free(sb_t *sb);
+void sb_free(sb_t *sb);

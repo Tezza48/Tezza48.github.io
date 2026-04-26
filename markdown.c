@@ -52,13 +52,13 @@ char *classify_tag(char **token)
 
 char *parse_markdown(char *src)
 {
-#define try_end_list(p_isList)          \
-    do                                  \
-        if (*(p_isList))                \
-        {                               \
-            sb_appendf(&sb, "</ul>\n"); \
-            *(p_isList) = false;        \
-        }                               \
+#define try_end_list(p_isList)         \
+    do                                 \
+        if (*(p_isList))               \
+        {                              \
+            sb_append(&sb, "</ul>\n"); \
+            *(p_isList) = false;       \
+        }                              \
     while (0)
 
     sb_t sb = {0};
@@ -69,7 +69,6 @@ char *parse_markdown(char *src)
     char *line_start = copy;
 
     bool isList = false;
-    int indent = 0;
 
     for (char *src_token = copy;;)
     {
@@ -112,7 +111,7 @@ char *parse_markdown(char *src)
             {
                 if (!isList)
                 {
-                    sb_appendf(&sb, "<ul>\n");
+                    sb_append(&sb, "<ul>\n");
                 }
                 isList = true;
             }
@@ -122,7 +121,6 @@ char *parse_markdown(char *src)
             }
 
             trim_space(line_start);
-            char *rendered = NULL;
 
             sb_appendf(&sb, "%*s<%s>%s</%s>\n", ((thisIndent + 1) / 2) * 2, "", tag, line_start, tag);
         }
@@ -137,17 +135,14 @@ char *parse_markdown(char *src)
         {
             // We need to try and end a list before rendering any non list line.
             try_end_list(&isList);
-            sb_appendf(&sb, "<br>\n");
+            sb_append(&sb, "<br>\n");
         }
 
         line_start = src_token;
     }
 
     // Add in a closing list tag if the last line of the src was a list item.
-    if (isList)
-    {
-        sb_appendf(&sb, "</ul>\n");
-    }
+    try_end_list(&isList);
 
     free(copy);
 

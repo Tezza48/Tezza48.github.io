@@ -11,7 +11,11 @@
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c23",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerArgs": [
+                "--Wall",
+                "--Wextra"
+            ]
         }
     ],
     "version": 4
