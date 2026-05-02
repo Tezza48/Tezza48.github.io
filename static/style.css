@@ -3,3 +3,9 @@ body {
     color: #eee;
     font-family: monospace;
 }
+
+.markdownContent {
+    /* margin-top: 10vh;
+    margin-bottom: 10vh; */
+    max-width: 40em;
+}

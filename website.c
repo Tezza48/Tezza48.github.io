@@ -274,6 +274,53 @@ void move_static_files(void)
     globfree(&g);
 }
 
+char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
+{
+    sb_t *sb = &(sb_t){0};
+
+    TAG("article", "class=\"mt-5\"")
+    {
+        sb_append(sb, content->rendered);
+        TAG("span", "")
+        {
+            size_t num_links = 0;
+            struct link_info
+            {
+                char *text;
+                char *filename;
+                char *classes;
+            } links[2];
+
+            if (prev)
+            {
+                links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
+            }
+            if (next)
+            {
+                links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
+            }
+
+            for (size_t i = 0; i < num_links; i++)
+            {
+                char *base = NULL;
+                size_t len = 0;
+                str_filename_noext(links[i].filename, &base, &len);
+
+                char attribs[1024];
+                snprintf(attribs, sizeof(attribs), "href=\"%.*s.html\" class=\"%s\"", len, base, links[i].classes);
+
+                TAG("a", attribs)
+                {
+
+                    sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
+                }
+            }
+        }
+    }
+
+    return sb_flush(sb);
+}
+
 void render()
 {
     blog_files blogs = load_blog_files();
@@ -302,9 +349,19 @@ void render()
         str_filename_noext(blog->filename, &basename, &len);
         snprintf(dist_path, 512, "dist/%.*s.html", (int)len, basename);
 
-        // TODO WT: Render a Prev, Next section under the blog post
+        blog_file *prev = NULL, *next = NULL;
+        if (i > 0)
+        {
+            next = &blogs.data[i - 1];
+        }
+        if (blogs.len - 1 > i)
+        {
+            prev = &blogs.data[i + 1];
+        }
 
-        render_page_to_dist(dist_path, blog->rendered);
+        char *blog_page = render_blog_post(blog, prev, next);
+        render_page_to_dist(dist_path, blog_page);
+        free(blog_page);
     }
     free_blog_files(&blogs);
 }
