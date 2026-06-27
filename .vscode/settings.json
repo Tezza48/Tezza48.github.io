@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
         "appendf"
-    ]
+    ],
+    "C_Cpp.default.compilerPath": "/usr/bin/clang"
 }

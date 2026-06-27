@@ -55,6 +55,44 @@ void sb_appendf(sb_t *sb, char *fmt, ...)
     sb_append_alloced(sb, buf);
 }
 
+void sb_prepend(sb_t *sb, char *str)
+{
+    sb_node *n = calloc(1, sizeof(*n));
+    n->str = str;
+    n->is_alloc = false;
+
+    sb->str_length += strlen(str);
+
+    if (sb->head == NULL)
+    {
+        sb->head = n;
+        sb->tail = n;
+    }
+    else
+    {
+        n->next = sb->head;
+        sb->head = n;
+    }
+}
+void sb_prepend_alloced(sb_t *sb, char *str) {
+    sb_prepend(sb, str);
+    sb->head->is_alloc = true;
+}
+void sb_prependln(sb_t *sb, char *str);
+void sb_prependf(sb_t *sb, char *fmt, ...) {
+    va_list args1, args2;
+    va_start(args1, fmt);
+    va_copy(args2, args1);
+    int len = vsnprintf(NULL, 0, fmt, args1);
+    char *buf = calloc(len + 1, sizeof(*buf));
+    vsnprintf(buf, len + 1, fmt, args2);
+    va_end(args1);
+    va_end(args2);
+
+    sb_append_alloced(sb, buf);
+}
+
+
 char *_build(sb_t *sb)
 {
     char *buf = calloc(sb->str_length + 1, sizeof(*buf));

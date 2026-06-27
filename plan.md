@@ -1,0 +1,5 @@
+- [x] Render a partial with parent `StaticTemplate` tags and `StaticContent` to the console
+- [ ] Render a single partial to the output `dist` dir
+- [ ] Render a whole directory of partials to the `dist` dir
+- [ ] Implement the hooks for rendering Markdown
+- [ ] Implement `StaticInsert` - A map of pre rendered content that gets pulled into a partial. (latest blog post, arbitrary rendered HTMLdata, maybe even direct links to other HTML fies)

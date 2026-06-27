@@ -1,13 +1,14 @@
-<section class="container d-flex flex-column justify-content-center px-4" style="min-height: 50vh">
-    <h1 class="display-5 fw-semibold mb-1">Tezza 48</h1>
-    <p class="text-secondary mb-4">Server Programmer by day | Everything Programmer by night</p>
-</section>
-<section class="container" style="min-height: 20vh">
-    <p>Here's the plan, I write a bunch of small projects, etc and they never really get documented so this site
-        will serve as a bit of a devlog/blog or even a scratch space just to legitimize the time i spend doing
-        random projects.</p>
-    <hr />
-</section>
+<StaticTemplate src="templates/base.html">
+    <section class="container d-flex flex-column justify-content-center px-4" style="min-height: 50vh">
+        <h1 class="display-5 fw-semibold mb-1">Tezza 48</h1>
+        <p class="text-secondary mb-4">Server Programmer by day | Everything Programmer by night</p>
+    </section>
+    <section class="container" style="min-height: 20vh">
+        <p>Here's the plan, I write a bunch of small projects, etc and they never really get documented so this site
+            will serve as a bit of a devlog/blog or even a scratch space just to legitimize the time i spend doing
+            random projects.</p>
+        <hr />
+    </section>
 
-<!-- The Latest blog post goes here -->
-
+    <StaticInsert name="LatestBlogPostPreview" />
+</StaticTemplate>

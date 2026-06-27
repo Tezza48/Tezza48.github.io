@@ -8,6 +8,9 @@
 #include <stdint.h>
 #include <glob.h>
 #include <assert.h>
+#include <memory.h>
+
+#include <math.h>
 
 #include "sb.h"
 #include "html.h"
@@ -15,6 +18,8 @@
 
 #include "sb.c"
 #include "markdown.c"
+
+#include <string.h>
 
 #define arr_push(p_arr, rvalue)                                                            \
     do                                                                                     \
@@ -73,6 +78,8 @@ char *read_file(const char *const path)
 
     return buf;
 }
+
+#if 0
 
 typedef struct
 {
@@ -172,7 +179,7 @@ char *render_index(blog_file latest_blog)
         char *basename = NULL;
         size_t len = 0;
         str_filename_noext(latest_blog.filename, &basename, &len);
-        snprintf(attribs, 512, "href=\"%.*s.html\"", (int)len, basename);
+        snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"", (int)len, basename);
         TAG("a", attribs)
         {
             TAG("div", "")
@@ -204,7 +211,7 @@ char *render_blog_posts(blog_files *blogs)
                     char *basename = NULL;
                     size_t len = 0;
                     str_filename_noext(blog.filename, &basename, &len);
-                    snprintf(attribs, 512, "href=\"%.*s.html\"", (int)len, basename);
+                    snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"", (int)len, basename);
                     TAG("a", attribs)
                     {
                         sb_appendf(sb, blog.preview);
@@ -274,52 +281,52 @@ void move_static_files(void)
     globfree(&g);
 }
 
-char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
-{
-    sb_t *sb = &(sb_t){0};
+// char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
+// {
+//     sb_t *sb = &(sb_t){0};
 
-    TAG("article", "class=\"mt-5\"")
-    {
-        sb_append(sb, content->rendered);
-        TAG("span", "")
-        {
-            size_t num_links = 0;
-            struct link_info
-            {
-                char *text;
-                char *filename;
-                char *classes;
-            } links[2];
+//     TAG("article", "class=\"mt-5\"")
+//     {
+//         sb_append(sb, content->rendered);
+//         TAG("span", "")
+//         {
+//             size_t num_links = 0;
+//             struct link_info
+//             {
+//                 char *text;
+//                 char *filename;
+//                 char *classes;
+//             } links[2];
 
-            if (prev)
-            {
-                links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
-            }
-            if (next)
-            {
-                links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
-            }
+//             if (prev)
+//             {
+//                 links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
+//             }
+//             if (next)
+//             {
+//                 links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
+//             }
 
-            for (size_t i = 0; i < num_links; i++)
-            {
-                char *base = NULL;
-                size_t len = 0;
-                str_filename_noext(links[i].filename, &base, &len);
+//             for (size_t i = 0; i < num_links; i++)
+//             {
+//                 char *base = NULL;
+//                 size_t len = 0;
+//                 str_filename_noext(links[i].filename, &base, &len);
 
-                char attribs[1024];
-                snprintf(attribs, sizeof(attribs), "href=\"%.*s.html\" class=\"%s\"", len, base, links[i].classes);
+//                 char attribs[1024];
+//                 snprintf(attribs, sizeof(attribs), "href=\"blog-post.html?blogPost=%.*s\" class=\"%s\"", len, base, links[i].classes);
 
-                TAG("a", attribs)
-                {
+//                 TAG("a", attribs)
+//                 {
 
-                    sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
-                }
-            }
-        }
-    }
+//                     sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
+//                 }
+//             }
+//         }
+//     }
 
-    return sb_flush(sb);
-}
+//     return sb_flush(sb);
+// }
 
 void render()
 {
@@ -337,6 +344,10 @@ void render()
 
     buf = read_file("partial/about.html");
     render_page_to_dist("dist/about.html", buf);
+    free(buf);
+
+    buf = read_file("partial/blog-post.html");
+    render_page_to_dist("dist/blog-post.html", buf);
     free(buf);
 
     // TODO WT: i could free them as i go
@@ -360,22 +371,254 @@ void render()
         }
 
         char *blog_page = render_blog_post(blog, prev, next);
-        render_page_to_dist(dist_path, blog_page);
+
+        FILE *f = fopen(dist_path, "w+");
+        fwrite(blog_page, sizeof(char), strlen(blog_page), f);
+
         free(blog_page);
     }
     free_blog_files(&blogs);
 }
 
-#define iter_argv(argc, argv) (argc) ? (argc--, *argv++) : NULL
+#endif
+
+#define iter_argv(argc, argv) (argc) ? (*(++argv), --argc) : 0
+
+typedef struct {
+    char* data;
+    size_t len;
+} slice;
+
+#define SLICE_FMT "%.*s"
+#define SLICE_ARGS(s) (int)(s).len, (s).data
+
+slice slice_from_cstr(char* cstr) {
+    return (slice){cstr, strlen(cstr)};
+}
+
+typedef struct {
+    slice begin;
+    slice end;
+} template_block;
+
+typedef struct {
+    slice before, found, after;
+} tag_split_result;
+
+slice tag_find(slice haystack, slice needle) {
+    char* found = memmem(haystack.data, haystack.len, needle.data, needle.len);
+    if (found) {
+        while (*found != '<' && found != haystack.data) found--;
+        char* closing = strchr(found, '>') + 1;
+        return (slice){found, closing - found};
+    }
+    return (slice){0};
+}
+
+tag_split_result tag_split(slice str, slice tag_name) {
+    slice before = str;
+    slice found = {0};
+    slice after = {0};
+
+    char* location = memmem(str.data, str.len, tag_name.data, tag_name.len);
+    if (location) {
+        // Find the opening < by moving left
+        while (*location != '<' && location != str.data) {
+            location--;
+        }
+
+        char* closing = strchr(location, '>') + 1;
+        size_t tag_len = closing - location;
+
+        found.data = location;
+        found.len = tag_len;
+
+        before.len = before.data - found.data;
+
+        after.data = closing + 1;
+        after.len = (str.data + str.len) - after.data;
+    }
+    return (tag_split_result){before, found, after};
+}
+
+slice tag_attrib(slice tag, slice attrib_name) {
+    char* attrib_loc = memmem(tag.data, tag.len, attrib_name.data, attrib_name.len);
+    if (!attrib_loc) return (slice){0};
+
+    // attrib_name="attrib_value"
+    attrib_loc += attrib_name.len + 2;
+    char* closing_quote = strchr(attrib_loc, '"');
+    return (slice){.data = attrib_loc, .len = closing_quote - attrib_loc};
+}
+
+// void cstr_prepend(char** pcstr, slice value);
+
+typedef struct {
+    char** data;
+    size_t len;
+    size_t cap;
+} partials_stack;
+
+// Recursively load a partial, inserting into the Content tag of any parent elements
+char* render_partial(char* filename)
+{
+    char* file = read_file(filename);
+    slice body = slice_from_cstr(file);
+
+    partials_stack stack = {0};
+
+    slice static_template_tagname = slice_from_cstr("StaticTemplate");
+    slice static_template_tagname_close = slice_from_cstr("/StaticTemplate");
+    slice static_content_tagname = slice_from_cstr("StaticContent /");
+
+    slice parent_open_tag = tag_find(body, static_template_tagname);
+    while (parent_open_tag.len != 0) {
+        slice parent_name = tag_attrib(body, slice_from_cstr("src"));
+        char name[256];
+        memset(name, 256, 0);
+        memcpy(name, parent_name.data, (parent_name.len < 255) ? parent_name.len : 255);
+        char* parent_src = read_file(name);
+
+        puts("Printing Parent Src:");
+        puts(parent_src);
+
+        arr_push(&stack, parent_src);
+        parent_open_tag = tag_find(slice_from_cstr(parent_src), static_template_tagname);
+    }
+
+    sb_t sb = (sb_t){0};
+
+    for (size_t i = stack.len; i-- != 0; ) {
+        // Push the befores to the string, outwards in
+        slice data = slice_from_cstr(stack.data[i]);
+
+        slice static_template_open = tag_find(data, static_template_tagname);
+        slice content_tag = tag_find(data, static_content_tagname);
+
+        char* start = static_template_open.data + static_template_open.len;
+        if (!start) start = data.data;
+        size_t len = content_tag.data - start;
+
+        puts("Pushing Befores");
+        printf(SLICE_FMT"\n", (int)len, start);
+        sb_appendf(&sb, SLICE_FMT, (int)len, start);
+    }
+    {
+        slice static_template_open = tag_find(body, static_template_tagname);
+        slice static_template_close = tag_find(body, static_template_tagname_close);
+        char* start = static_template_open.data + static_template_open.len;
+        size_t len = static_template_close.data - start;
+        if (!start) {
+            start = body.data;
+            len = body.len;
+        }
+
+        puts("Pushing Body");
+        printf(SLICE_FMT"\n", (int)len, start);
+        sb_appendf(&sb, SLICE_FMT, (int)len, start);
+    }
+    for (size_t i = 0; i < stack.len; i++) {
+        // push the afters to the string, inwards out
+        slice data = slice_from_cstr(stack.data[i]);
+
+        slice content_tag = tag_find(data, static_content_tagname);
+        slice static_template_close = tag_find(body, static_template_tagname_close);
+
+        char* start = content_tag.data + content_tag.len;
+        size_t len =
+            static_template_close.data
+            ? static_template_close.data - start
+            : data.len - (start - data.data);
+
+        puts("Printing afters");
+        printf(SLICE_FMT"\n", (int)len, start);
+        sb_appendf(&sb, SLICE_FMT, (int)len, start);
+
+        free(stack.data[i]);
+    }
+
+    free(file);
+
+    return sb_flush(&sb);
+}
 
 int main(int argc, char **argv)
 {
     // Ignore the binary name
-    iter_argv(argc, argv);
+    // iter_argv(argc, argv);
 
-    move_static_files();
+    // char* pages_dir = NULL;
+    // char* blog_post_dir = NULL;
+    // char* out_dir = NULL;
 
-    render();
+    // do {
+    //     printf("argv: %s\n", *argv);
+    //     if (strcmp(*argv, "--pages") == 0 || strcmp(*argv, "-p") == 0) {
+    //         iter_argv(argc, argv);
+    //         pages_dir = *argv;
+    //         continue;
+    //     }
+
+    //     if (strcmp(*argv, "--blog") == 0) {
+    //         iter_argv(argc, argv);
+    //         blog_post_dir = *argv;
+    //         continue;
+    //     }
+
+    //     if (strcmp(*argv, "--out") == 0 || strcmp(*argv, "-o") == 0) {
+    //         iter_argv(argc, argv);
+    //         out_dir = *argv;
+    //         continue;
+    //     }
+    // }
+    // while(iter_argv(argc, argv));
+
+    // printf("pages dir: %s\n", pages_dir);
+    // printf("blog post dir: %s\n", blog_post_dir);
+
+    char* rendered = render_partial("partial/index.html");
+    puts(rendered);
+
+    // char* file = read_file("partial/index.html");
+    // // char* file = read_file("templates/base.html");
+
+    // slice lex = slice_from_cstr(file);
+
+    // slice body = lex;
+
+    // slice open_template_tag = tag_find(lex, slice_from_cstr("StaticTemplete"));
+    // slice close_template_tag = tag_find(lex, slice_from_cstr("/StaticTemplate"));
+
+    // if (open_template_tag.len) {
+    //     if (!close_template_tag.len) puts("Found an opening tag but didnt found a closing tag");
+
+    //     char* start = open_template_tag.data + open_template_tag.len;
+    //     body = (slice){
+    //         .data = start,
+    //         .len = close_template_tag.data - start,
+    //     };
+    // }
+
+    // printf("Lexer:\n%.*s\n\n", (int)lex.len, lex.data);
+
+    // tag_split_result content_tag_split = tag_split(lex, slice_from_cstr("StaticContent"));
+    // slice before = content_tag_split.before;
+    // slice found = content_tag_split.found;
+    // slice after = content_tag_split.after;
+
+
+
+    // printf("    Result Before:\n%.*s\n\n", (int)before.len, before.data);
+    // printf("    Result Found tag:\n%.*s\n\n", (int)found.len, found.data);
+    // printf("    Result After:\n%.*s\n\n", (int)after.len, after.data);
+
+    // free(file);
+
+    // Want to load each file in "partial", look for set of known Hook elements
+
+    // move_static_files();
+
+    // render();
 
     return 0;
 }

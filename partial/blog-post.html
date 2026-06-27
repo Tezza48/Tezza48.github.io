@@ -1,0 +1,13 @@
+<StaticTemplate src="templates/base.html">
+    <div id="post-content"></div>
+    <script type="module">
+        const postContentDiv = document.getElementById("post-content");
+        const params = new URLSearchParams(document.location.search);
+
+        const postContentName = params.get("blogPost");
+        const postContent = await (
+            await fetch(`${postContentName}.html`)
+        ).text();
+        postContentDiv.outerHTML = postContent;
+    </script>
+</StaticTemplate>
