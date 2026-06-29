@@ -10,8 +10,6 @@
 #include <assert.h>
 #include <memory.h>
 
-#include <math.h>
-
 #include "sb.h"
 #include "html.h"
 #include "markdown.h"
@@ -130,63 +128,6 @@ void free_blog_files(blog_files *files)
     arr_free(files);
 }
 
-void render_header(sb_t *sb)
-{
-    header("class=\"d-flex justify-content-between align-items-center px-4 py-2 border-bottom\"")
-    {
-        TEXT("span", sitename, "class=\"fw-semibold\"");
-
-#define DECORATION " class=\"link-light text-decoration-none\""
-
-        struct
-        {
-            char *txt;
-            char *attribs;
-        } links[] = {
-            {"home", "href=\"/index.html\"" DECORATION},
-            {"about", "href=\"/about.html\"" DECORATION},
-            {"blog", "href=\"/blog.html\"" DECORATION},
-            {"github", "href=\"https://github.com/tezza48\"" DECORATION},
-            {"itch.io", "href=\"https://tezza48.itch.io\"" DECORATION},
-        };
-
-#undef DECORATION
-
-        TAG("nav", "class=\"d-flex gap-3\"")
-        {
-            for (size_t i = 0; i < sizeof(links) / sizeof(*links); i++)
-            {
-                TEXT("a", links[i].txt, links[i].attribs);
-            }
-        }
-    }
-}
-
-char *render_index(blog_file latest_blog)
-{
-    sb_t *sb = &(sb_t){0};
-    sb_append_alloced(sb, read_file("partial/index.html"));
-    section("")
-    {
-        h1("Latest Blog Post", "");
-        char attribs[512];
-
-        char *basename = NULL;
-        size_t len = 0;
-        str_filename_noext(latest_blog.filename, &basename, &len);
-        snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"", (int)len, basename);
-        TAG("a", attribs)
-        {
-            TAG("div", "")
-            {
-                sb_append(sb, latest_blog.preview);
-            }
-        }
-    }
-
-    return sb_flush(sb);
-}
-
 char *render_blog_posts(blog_files *blogs)
 {
     sb_t *sb = &(sb_t){0};
@@ -218,39 +159,6 @@ char *render_blog_posts(blog_files *blogs)
 
     return sb_flush(sb);
 }
-
-void render_page_to_dist(char *filename, char *content)
-{
-    sb_t *sb = &(sb_t){0};
-
-    sb_append(sb, "<!DOCTYPE html>");
-    html()
-    {
-        head()
-        {
-            TEXT("title", "Tezza 48", "");
-
-            ESC("link", "href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB\" crossorigin=\"anonymous\"");
-            ESC("link", "rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\"");
-        }
-        body()
-        {
-            render_header(sb);
-            main_el("class=\"container d-flex flex-column flex-grow-1\"")
-            {
-                sb_append(sb, content);
-            }
-        }
-    }
-
-    char *rendered = sb_flush(sb);
-
-    FILE *f = fopen(filename, "w+");
-    fwrite(rendered, sizeof(char), strlen(rendered), f);
-    free(rendered);
-}
-
-
 
 // char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
 // {
@@ -533,7 +441,7 @@ int main(int argc, char **argv)
 {
     char* bin_name = *argv;
 
-    char* pages_dir = "partial/";
+    char* pages_dir = "pages/";
     char* blog_post_dir = "blog/";
     char* static_content = "static/*.*";
     char* out_dir = "dist/";
@@ -577,14 +485,27 @@ int main(int argc, char **argv)
         }
     }
 
-    char* current_partial_filename = "partial/index.html";
-    char* rendered = render_partial(current_partial_filename);
-    char out_name[256] = {0};
-    snprintf(out_name, 256, "%s/%s", out_dir, current_partial_filename + strlen(pages_dir));
-    FILE* f = fopen(out_name, "wb");
-    fwrite(rendered, sizeof(char), strlen(rendered), f);
-    fclose(f);
-    free(rendered);
+    // Load all pages from pages dir and render them to out dir
+    glob_t g;
+    char partials_glob[128] = {0};
+    snprintf(partials_glob, 128, "%s/*.html", pages_dir);
+    glob(partials_glob, 0, NULL, &g);
+
+    for (size_t i = 0; i < g.gl_pathc; i++) {
+        char* current_partial_filename = g.gl_pathv[i];
+        char* rendered = render_partial(current_partial_filename);
+        char out_name[256] = {0};
+        snprintf(out_name, 256, "%s/%s", out_dir, current_partial_filename + strlen(pages_dir));
+        FILE* f = fopen(out_name, "wb");
+        fwrite(rendered, sizeof(char), strlen(rendered), f);
+        fclose(f);
+        free(rendered);
+    }
+
+    globfree(&g);
+
+    move_static_files(static_content, out_dir);
+
 
     return 0;
 }

@@ -23,7 +23,19 @@
     </header>
     <main class="container d-flex flex-column flex-grow-1">
 
-        <StaticContent />
+        
+    <div id="post-content"></div>
+    <script type="module">
+        const postContentDiv = document.getElementById("post-content");
+        const params = new URLSearchParams(document.location.search);
+
+        const postContentName = params.get("blogPost");
+        const postContent = await (
+            await fetch(`${postContentName}.html`)
+        ).text();
+        postContentDiv.outerHTML = postContent;
+    </script>
+
 
     </main>
     <footer class="border-top">
