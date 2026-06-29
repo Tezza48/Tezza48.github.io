@@ -43,11 +43,6 @@
 
 #define STRINGBUILDER sb
 
-const char *dist_dir = "dist/";
-const char *partial_dir = "partial/";
-const char *blog_dir = "blog/";
-const char *static_content = "static/*.*";
-
 const char *sitename = "Tezza48's page";
 
 static inline size_t size_min(size_t a, size_t b)
@@ -255,31 +250,7 @@ void render_page_to_dist(char *filename, char *content)
     free(rendered);
 }
 
-void move_static_files(void)
-{
-    glob_t g;
-    glob(static_content, 0, NULL, &g);
 
-    for (size_t i = 0; i < g.gl_pathc; i++)
-    {
-        char dst_path[512];
-        snprintf(dst_path, sizeof(dst_path), "%s%s", dist_dir, strchr(g.gl_pathv[i], '/'));
-
-        char buf[4096];
-        size_t bytes_read = 0;
-        FILE *fsrc = fopen(g.gl_pathv[i], "rb");
-        FILE *fdst = fopen(dst_path, "wb+");
-        while ((bytes_read = fread(buf, sizeof(char), sizeof(buf), fsrc), bytes_read))
-        {
-            fwrite(buf, sizeof(char), bytes_read, fdst);
-        }
-
-        fclose(fdst);
-        fclose(fsrc);
-    }
-
-    globfree(&g);
-}
 
 // char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
 // {
@@ -474,13 +445,9 @@ char* render_partial(char* filename)
     slice parent_open_tag = tag_find(body, static_template_tagname);
     while (parent_open_tag.len != 0) {
         slice parent_name = tag_attrib(body, slice_from_cstr("src"));
-        char name[256];
-        memset(name, 256, 0);
+        char name[256] = {0};
         memcpy(name, parent_name.data, (parent_name.len < 255) ? parent_name.len : 255);
         char* parent_src = read_file(name);
-
-        puts("Printing Parent Src:");
-        puts(parent_src);
 
         arr_push(&stack, parent_src);
         parent_open_tag = tag_find(slice_from_cstr(parent_src), static_template_tagname);
@@ -499,8 +466,6 @@ char* render_partial(char* filename)
         if (!start) start = data.data;
         size_t len = content_tag.data - start;
 
-        puts("Pushing Befores");
-        printf(SLICE_FMT"\n", (int)len, start);
         sb_appendf(&sb, SLICE_FMT, (int)len, start);
     }
     {
@@ -513,8 +478,6 @@ char* render_partial(char* filename)
             len = body.len;
         }
 
-        puts("Pushing Body");
-        printf(SLICE_FMT"\n", (int)len, start);
         sb_appendf(&sb, SLICE_FMT, (int)len, start);
     }
     for (size_t i = 0; i < stack.len; i++) {
@@ -530,8 +493,6 @@ char* render_partial(char* filename)
             ? static_template_close.data - start
             : data.len - (start - data.data);
 
-        puts("Printing afters");
-        printf(SLICE_FMT"\n", (int)len, start);
         sb_appendf(&sb, SLICE_FMT, (int)len, start);
 
         free(stack.data[i]);
@@ -542,83 +503,88 @@ char* render_partial(char* filename)
     return sb_flush(&sb);
 }
 
+void move_static_files(char* static_content_glob, char* dist_dir)
+{
+    glob_t g;
+    glob(static_content_glob, 0, NULL, &g);
+
+    for (size_t i = 0; i < g.gl_pathc; i++)
+    {
+        char dst_path[512];
+        snprintf(dst_path, sizeof(dst_path), "%s%s", dist_dir, strchr(g.gl_pathv[i], '/'));
+
+        char buf[4096];
+        size_t bytes_read = 0;
+        FILE *fsrc = fopen(g.gl_pathv[i], "rb");
+        FILE *fdst = fopen(dst_path, "wb+");
+        while ((bytes_read = fread(buf, sizeof(char), sizeof(buf), fsrc), bytes_read))
+        {
+            fwrite(buf, sizeof(char), bytes_read, fdst);
+        }
+
+        fclose(fdst);
+        fclose(fsrc);
+    }
+
+    globfree(&g);
+}
+
 int main(int argc, char **argv)
 {
-    // Ignore the binary name
-    // iter_argv(argc, argv);
+    char* bin_name = *argv;
 
-    // char* pages_dir = NULL;
-    // char* blog_post_dir = NULL;
-    // char* out_dir = NULL;
+    char* pages_dir = "partial/";
+    char* blog_post_dir = "blog/";
+    char* static_content = "static/*.*";
+    char* out_dir = "dist/";
 
-    // do {
-    //     printf("argv: %s\n", *argv);
-    //     if (strcmp(*argv, "--pages") == 0 || strcmp(*argv, "-p") == 0) {
-    //         iter_argv(argc, argv);
-    //         pages_dir = *argv;
-    //         continue;
-    //     }
+    while (iter_argv(argc, argv)) {
 
-    //     if (strcmp(*argv, "--blog") == 0) {
-    //         iter_argv(argc, argv);
-    //         blog_post_dir = *argv;
-    //         continue;
-    //     }
+        printf("argv: %s\n", *argv);
+        if (strcmp(*argv, "--pages") == 0 || strcmp(*argv, "-p") == 0) {
+            iter_argv(argc, argv);
+            pages_dir = *argv;
+        }
+        else if (strcmp(*argv, "--blog") == 0) {
+            iter_argv(argc, argv);
+            blog_post_dir = *argv;
+        }
+        else if (strcmp(*argv, "--static") == 0) {
+            iter_argv(argc, argv);
+            static_content = *argv;
+        }
+        else if (strcmp(*argv, "--out") == 0 || strcmp(*argv, "-o") == 0) {
+            iter_argv(argc, argv);
+            out_dir = *argv;
+        }
+        else if (strcmp(*argv, "--help") == 0) {
+            printf(
+                "%s --pages <string> --blog <string> --static <string> --out <string>\n"
+                "Build the static website\n\n"
+                "    --pages:  The directory of pages to render.                      default: '%s'\n"
+                "    --blog:   The directory of Markdown blog files.                   default: '%s'\n"
+                "    --static: Directory of static files to be copied to the output. default: '%s'\n"
+                "    --out:    Output directory.                                        default: '%s'\n"
+                "    --help:   Prints this help display.\n",
+                bin_name,
+                pages_dir,
+                blog_post_dir,
+                static_content,
+                out_dir
+            );
 
-    //     if (strcmp(*argv, "--out") == 0 || strcmp(*argv, "-o") == 0) {
-    //         iter_argv(argc, argv);
-    //         out_dir = *argv;
-    //         continue;
-    //     }
-    // }
-    // while(iter_argv(argc, argv));
+            exit(0);
+        }
+    }
 
-    // printf("pages dir: %s\n", pages_dir);
-    // printf("blog post dir: %s\n", blog_post_dir);
-
-    char* rendered = render_partial("partial/index.html");
-    puts(rendered);
-
-    // char* file = read_file("partial/index.html");
-    // // char* file = read_file("templates/base.html");
-
-    // slice lex = slice_from_cstr(file);
-
-    // slice body = lex;
-
-    // slice open_template_tag = tag_find(lex, slice_from_cstr("StaticTemplete"));
-    // slice close_template_tag = tag_find(lex, slice_from_cstr("/StaticTemplate"));
-
-    // if (open_template_tag.len) {
-    //     if (!close_template_tag.len) puts("Found an opening tag but didnt found a closing tag");
-
-    //     char* start = open_template_tag.data + open_template_tag.len;
-    //     body = (slice){
-    //         .data = start,
-    //         .len = close_template_tag.data - start,
-    //     };
-    // }
-
-    // printf("Lexer:\n%.*s\n\n", (int)lex.len, lex.data);
-
-    // tag_split_result content_tag_split = tag_split(lex, slice_from_cstr("StaticContent"));
-    // slice before = content_tag_split.before;
-    // slice found = content_tag_split.found;
-    // slice after = content_tag_split.after;
-
-
-
-    // printf("    Result Before:\n%.*s\n\n", (int)before.len, before.data);
-    // printf("    Result Found tag:\n%.*s\n\n", (int)found.len, found.data);
-    // printf("    Result After:\n%.*s\n\n", (int)after.len, after.data);
-
-    // free(file);
-
-    // Want to load each file in "partial", look for set of known Hook elements
-
-    // move_static_files();
-
-    // render();
+    char* current_partial_filename = "partial/index.html";
+    char* rendered = render_partial(current_partial_filename);
+    char out_name[256] = {0};
+    snprintf(out_name, 256, "%s/%s", out_dir, current_partial_filename + strlen(pages_dir));
+    FILE* f = fopen(out_name, "wb");
+    fwrite(rendered, sizeof(char), strlen(rendered), f);
+    fclose(f);
+    free(rendered);
 
     return 0;
 }
