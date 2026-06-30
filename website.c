@@ -74,60 +74,6 @@ char *read_file(const char *const path)
 
 #if 0
 
-typedef struct
-{
-    char filename[256];
-    char *src;
-    char *rendered;
-    char *preview;
-} blog_file;
-typedef struct
-{
-    blog_file *data;
-    size_t len, cap;
-} blog_files;
-
-blog_files load_blog_files()
-{
-    blog_files files = {0};
-
-    glob_t g;
-    glob("blog/*.md", 0, NULL, &g);
-
-    for (int i = (int)g.gl_pathc - 1; i >= 0; i--)
-    {
-        blog_file f = {0};
-        memcpy(f.filename, g.gl_pathv[i], size_min(sizeof(f.filename), strlen(g.gl_pathv[i])));
-        f.src = read_file(f.filename);
-
-        // TODO WT: Would be nice to wrap the blog posts so that styling can be applied to them
-
-        f.rendered = parse_markdown(f.src);
-        size_t preview_len = size_min(strlen(f.src), 200);
-        char *preview_src = strndup(f.src, preview_len);
-        f.preview = parse_markdown(preview_src);
-        free(preview_src);
-
-        arr_push(&files, f);
-    }
-
-    globfree(&g);
-
-    return files;
-}
-
-void free_blog_files(blog_files *files)
-{
-    while (files->len)
-    {
-        blog_file f = arr_pop(files);
-        free(f.src);
-        free(f.rendered);
-        free(f.preview);
-    }
-    arr_free(files);
-}
-
 char *render_blog_posts(blog_files *blogs)
 {
     sb_t *sb = &(sb_t){0};
@@ -159,53 +105,6 @@ char *render_blog_posts(blog_files *blogs)
 
     return sb_flush(sb);
 }
-
-// char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
-// {
-//     sb_t *sb = &(sb_t){0};
-
-//     TAG("article", "class=\"mt-5\"")
-//     {
-//         sb_append(sb, content->rendered);
-//         TAG("span", "")
-//         {
-//             size_t num_links = 0;
-//             struct link_info
-//             {
-//                 char *text;
-//                 char *filename;
-//                 char *classes;
-//             } links[2];
-
-//             if (prev)
-//             {
-//                 links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
-//             }
-//             if (next)
-//             {
-//                 links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
-//             }
-
-//             for (size_t i = 0; i < num_links; i++)
-//             {
-//                 char *base = NULL;
-//                 size_t len = 0;
-//                 str_filename_noext(links[i].filename, &base, &len);
-
-//                 char attribs[1024];
-//                 snprintf(attribs, sizeof(attribs), "href=\"blog-post.html?blogPost=%.*s\" class=\"%s\"", len, base, links[i].classes);
-
-//                 TAG("a", attribs)
-//                 {
-
-//                     sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
-//                 }
-//             }
-//         }
-//     }
-
-//     return sb_flush(sb);
-// }
 
 void render()
 {
@@ -330,7 +229,109 @@ slice tag_attrib(slice tag, slice attrib_name) {
     return (slice){.data = attrib_loc, .len = closing_quote - attrib_loc};
 }
 
-// void cstr_prepend(char** pcstr, slice value);
+typedef struct
+{
+    char filename[256];
+    char *src;
+    char *rendered;
+    char *preview;
+} blog_file;
+typedef struct
+{
+    blog_file *data;
+    size_t len, cap;
+} blog_files;
+
+blog_files load_blog_files(char* blogs_dir)
+{
+    blog_files files = {0};
+
+    glob_t g;
+    char blogs_glob[128] = {0};
+    snprintf(blogs_glob, 128, "%s/*.md", blogs_dir);
+    glob(blogs_glob, 0, NULL, &g);
+
+    for (int i = (int)g.gl_pathc - 1; i >= 0; i--)
+    {
+        blog_file f = {0};
+        memcpy(f.filename, g.gl_pathv[i], size_min(sizeof(f.filename), strlen(g.gl_pathv[i])));
+        f.src = read_file(f.filename);
+
+        // TODO WT: Would be nice to wrap the blog posts so that styling can be applied to them
+
+        f.rendered = parse_markdown(f.src);
+        size_t preview_len = size_min(strlen(f.src), 200);
+        char *preview_src = strndup(f.src, preview_len);
+        f.preview = parse_markdown(preview_src);
+        free(preview_src);
+
+        arr_push(&files, f);
+    }
+
+    globfree(&g);
+
+    return files;
+}
+
+void free_blog_files(blog_files *files)
+{
+    while (files->len)
+    {
+        blog_file f = arr_pop(files);
+        free(f.src);
+        free(f.rendered);
+        free(f.preview);
+    }
+    arr_free(files);
+}
+
+
+char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
+{
+    sb_t *sb = &(sb_t){0};
+
+    TAG("article", "class=\"mt-5\"")
+    {
+        sb_append(sb, content->rendered);
+        TAG("span", "")
+        {
+            size_t num_links = 0;
+            struct link_info
+            {
+                char *text;
+                char *filename;
+                char *classes;
+            } links[2];
+
+            if (prev)
+            {
+                links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
+            }
+            if (next)
+            {
+                links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
+            }
+
+            for (size_t i = 0; i < num_links; i++)
+            {
+                char *base = NULL;
+                size_t len = 0;
+                str_filename_noext(links[i].filename, &base, &len);
+
+                char attribs[1024];
+                snprintf(attribs, sizeof(attribs), "href=\"blog-post.html?blogPost=%.*s\" class=\"%s\"", (int)len, base, links[i].classes);
+
+                TAG("a", attribs)
+                {
+                    sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
+                }
+            }
+        }
+    }
+
+    return sb_flush(sb);
+}
+
 
 typedef struct {
     char** data;
@@ -447,25 +448,27 @@ int main(int argc, char **argv)
     char* out_dir = "dist/";
 
     while (iter_argv(argc, argv)) {
-
-        printf("argv: %s\n", *argv);
         if (strcmp(*argv, "--pages") == 0 || strcmp(*argv, "-p") == 0) {
             iter_argv(argc, argv);
             pages_dir = *argv;
         }
-        else if (strcmp(*argv, "--blog") == 0) {
+
+       if (strcmp(*argv, "--blog") == 0) {
             iter_argv(argc, argv);
             blog_post_dir = *argv;
         }
-        else if (strcmp(*argv, "--static") == 0) {
+
+       if (strcmp(*argv, "--static") == 0) {
             iter_argv(argc, argv);
             static_content = *argv;
         }
-        else if (strcmp(*argv, "--out") == 0 || strcmp(*argv, "-o") == 0) {
+
+       if (strcmp(*argv, "--out") == 0 || strcmp(*argv, "-o") == 0) {
             iter_argv(argc, argv);
             out_dir = *argv;
         }
-        else if (strcmp(*argv, "--help") == 0) {
+
+       if (strcmp(*argv, "--help") == 0) {
             printf(
                 "%s --pages <string> --blog <string> --static <string> --out <string>\n"
                 "Build the static website\n\n"
@@ -484,6 +487,36 @@ int main(int argc, char **argv)
             exit(0);
         }
     }
+
+    // Load the blog files
+    blog_files blogs = load_blog_files(blog_post_dir);
+    for (size_t i = 0; i < blogs.len; i++)
+    {
+        blog_file *blog = &blogs.data[i];
+        char dist_path[512];
+        char *basename = NULL;
+        size_t len = 0;
+        str_filename_noext(blog->filename, &basename, &len);
+        snprintf(dist_path, 512, "dist/%.*s.html", (int)len, basename);
+
+        blog_file *prev = NULL, *next = NULL;
+        if (i > 0)
+        {
+            next = &blogs.data[i - 1];
+        }
+        if (blogs.len - 1 > i)
+        {
+            prev = &blogs.data[i + 1];
+        }
+
+        char *blog_page = render_blog_post(blog, prev, next);
+
+        FILE *f = fopen(dist_path, "w+");
+        fwrite(blog_page, sizeof(char), strlen(blog_page), f);
+
+        free(blog_page);
+    }
+    free_blog_files(&blogs);
 
     // Load all pages from pages dir and render them to out dir
     glob_t g;

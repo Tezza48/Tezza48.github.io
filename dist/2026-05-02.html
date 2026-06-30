@@ -1,0 +1,14 @@
+<article class="mt-5"><h1>Blog Improvements</h1>
+<p><em>2026 05 02</em></p>
+<p>This is a super boring one, i'll stick to bullet points</p>
+<ul>
+<li>Fixed some minor issues in the markdown parser</li>
+<li>Fixed some code style issues (thanks to <code>-Wall</code> and <code>-Wextra</code>)</li>
+<li>Added a static assets directory, it moves the contents of <code>static/\*.*</code> to the dist folder</li>
+<li>Fixed some dumb memory leaks and access violations thanks to <code>-fsanitize=address</code></li>
+</ul>
+<p>> The big hitters here were incorrectly copying the 200 byte blog previews (correct usage would be to copy the minimum of strlen AND 200)</p>
+<ul>
+<li>Finally I added a method to actually process blog posts, they're now wrapped in an article tag AND they have a previous/next button at the bottom</li>
+</ul>
+<span ><a href="blog-post.html?blogPost=2026-04-25" class="">Prev: 2026-04-25</a></span></article>
