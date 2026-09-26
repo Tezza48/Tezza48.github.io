@@ -286,53 +286,6 @@ void free_blog_files(blog_files *files)
 }
 
 
-char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
-{
-    sb_t *sb = &(sb_t){0};
-
-    TAG("article", "class=\"mt-5\"")
-    {
-        sb_append(sb, content->rendered);
-        TAG("span", "")
-        {
-            size_t num_links = 0;
-            struct link_info
-            {
-                char *text;
-                char *filename;
-                char *classes;
-            } links[2];
-
-            if (prev)
-            {
-                links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
-            }
-            if (next)
-            {
-                links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
-            }
-
-            for (size_t i = 0; i < num_links; i++)
-            {
-                char *base = NULL;
-                size_t len = 0;
-                str_filename_noext(links[i].filename, &base, &len);
-
-                char attribs[1024];
-                snprintf(attribs, sizeof(attribs), "href=\"blog-post.html?blogPost=%.*s\" class=\"%s\"", (int)len, base, links[i].classes);
-
-                TAG("a", attribs)
-                {
-                    sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
-                }
-            }
-        }
-    }
-
-    return sb_flush(sb);
-}
-
-
 typedef struct {
     char** data;
     size_t len;
@@ -412,6 +365,50 @@ char* render_partial(char* filename)
     return sb_flush(&sb);
 }
 
+
+char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next)
+{
+    sb_t *sb = &(sb_t){0};
+
+    sb_append(sb, content->rendered);
+    TAG("span", "")
+    {
+        size_t num_links = 0;
+        struct link_info
+        {
+            char *text;
+            char *filename;
+            char *classes;
+        } links[2];
+
+        if (prev)
+        {
+            links[num_links++] = (struct link_info){"Prev", prev->filename, ""};
+        }
+        if (next)
+        {
+            links[num_links++] = (struct link_info){"Next", next->filename, "px-5"};
+        }
+
+        for (size_t i = 0; i < num_links; i++)
+        {
+            char *base = NULL;
+            size_t len = 0;
+            str_filename_noext(links[i].filename, &base, &len);
+
+            char attribs[1024];
+            snprintf(attribs, sizeof(attribs), "href=\"blog-post.html?blogPost=%.*s\" class=\"%s\"", (int)len, base, links[i].classes);
+
+            TAG("a", attribs)
+            {
+                sb_appendf(sb, "%s: %.*s", links[i].text, len, base);
+            }
+        }
+    }
+
+    return sb_flush(sb);
+}
+
 void move_static_files(char* static_content_glob, char* dist_dir)
 {
     glob_t g;
@@ -436,6 +433,13 @@ void move_static_files(char* static_content_glob, char* dist_dir)
     }
 
     globfree(&g);
+}
+
+void ensure_dir(char* path) {
+    struct stat s = {0};
+    if (stat(path, &s) != 0) {
+        mkdir(path, 0777);
+    }
 }
 
 int main(int argc, char **argv)
@@ -487,6 +491,8 @@ int main(int argc, char **argv)
             exit(0);
         }
     }
+
+    ensure_dir(out_dir);
 
     // Load the blog files
     blog_files blogs = load_blog_files(blog_post_dir);
