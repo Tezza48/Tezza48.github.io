@@ -266,6 +266,30 @@ blog_files load_blog_files(char *blogs_dir) {
   return files;
 }
 
+typedef struct static_insert {
+  char *name;
+  char *body;
+} static_insert;
+
+struct {
+  size_t len, cap;
+  static_insert *data;
+} static_inserts = {0};
+
+void add_static_insert_data(char *name, char *body) {
+  arr_push(&static_inserts, ((static_insert){name, body}));
+}
+
+char *get_static(slice name) {
+  for (size_t i = 0; i < static_inserts.len; i++) {
+    if (strncmp(name.data, static_inserts.data[i].name, name.len) == 0) {
+      return static_inserts.data[i].body;
+    }
+  }
+
+  return NULL;
+}
+
 void free_blog_files(blog_files *files) {
   while (files->len) {
     blog_file f = arr_pop(files);
@@ -323,6 +347,7 @@ char *render_partial(char *filename) {
 
     sb_appendf(&sb, SLICE_FMT, (int)len, start);
   }
+
   {
     slice static_template_open = tag_find(body, static_template_tagname);
     slice static_template_close = tag_find(body, static_template_tagname_close);
@@ -394,6 +419,41 @@ char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next) {
   return sb_flush(sb);
 }
 
+// Renders the first "StaticInsert" tag found
+char *render_static_inserts(char *buffer) {
+  sb_t *sb = &(sb_t){0};
+
+  // This is a good usecase for tag_split
+
+  slice body = slice_from_cstr(buffer);
+  slice static_insert_tagname = slice_from_cstr("StaticInsert");
+  slice insert_name_attribname = slice_from_cstr("name");
+
+  slice insert_tag = tag_find(body, static_insert_tagname);
+
+  if (!insert_tag.len){
+      return strdup(buffer);
+  }
+
+  char *start = body.data;
+  size_t len = insert_tag.data - start;
+
+  // Push everything from the start of the buffer to the start of the insert tag
+  sb_appendf(sb, SLICE_FMT, (int)len, start);
+
+  slice name_attrib = tag_attrib(insert_tag, insert_name_attribname);
+  char *content = get_static(name_attrib);
+  sb_append(sb, content);
+
+  start = insert_tag.data + insert_tag.len;
+  char *end = body.data + body.len;
+  len = end - start;
+
+  sb_appendf(sb, SLICE_FMT, (int)len, start);
+
+  return sb_flush(sb);
+}
+
 void move_static_files(char *static_content_glob, char *dist_dir) {
   glob_t g;
   glob(static_content_glob, 0, NULL, &g);
@@ -429,6 +489,10 @@ void ensure_dir(char *path) {
 int main(int argc, char **argv) {
   char *bin_name = *argv;
 
+  char *pages_dir = "pages/";
+  char *blog_post_dir = "blog/";
+  char *static_content = "static/*.*";
+  char *out_dir = "dist/";
 
   while (iter_argv(argc, argv)) {
     if (strcmp(*argv, "--pages") == 0 || strcmp(*argv, "-p") == 0) {
@@ -474,6 +538,23 @@ int main(int argc, char **argv) {
 
   // Load the blog files
   blog_files blogs = load_blog_files(blog_post_dir);
+
+  sb_t *sb = &(sb_t){0};
+  char attribs[512];
+  char *basename = NULL;
+  size_t len = 0;
+  str_filename_noext(blogs.data[0].filename, &basename, &len);
+  snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"", (int)len,
+           basename);
+  TAG("a", attribs) {
+    TAG("div", "") { sb_append(sb, blogs.data[0].preview); }
+  }
+
+  char *latest_blog_preview = sb_flush(sb);
+
+  add_static_insert_data("LatestBlogPostPreview", latest_blog_preview);
+
+  // Render blog files to
   for (size_t i = 0; i < blogs.len; i++) {
     blog_file *blog = &blogs.data[i];
     char dist_path[512];
@@ -494,10 +575,10 @@ int main(int argc, char **argv) {
 
     FILE *f = fopen(dist_path, "w+");
     fwrite(blog_page, sizeof(char), strlen(blog_page), f);
+    fclose(f);
 
     free(blog_page);
   }
-  free_blog_files(&blogs);
 
   // Load all pages from pages dir and render them to out dir
   glob_t g;
@@ -508,18 +589,26 @@ int main(int argc, char **argv) {
   for (size_t i = 0; i < g.gl_pathc; i++) {
     char *current_partial_filename = g.gl_pathv[i];
     char *rendered = render_partial(current_partial_filename);
+    char *static_inserts_rendered = render_static_inserts(rendered);
+    free(rendered);
+
+    char *final = static_inserts_rendered;
     char out_name[256] = {0};
     snprintf(out_name, 256, "%s/%s", out_dir,
              current_partial_filename + strlen(pages_dir));
     FILE *f = fopen(out_name, "wb");
-    fwrite(rendered, sizeof(char), strlen(rendered), f);
+    fwrite(final, sizeof(char), strlen(final), f);
     fclose(f);
-    free(rendered);
+    free(final);
   }
 
   globfree(&g);
 
   move_static_files(static_content, out_dir);
+
+  free(latest_blog_preview);
+
+  free_blog_files(&blogs);
 
   return 0;
 }
