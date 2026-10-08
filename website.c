@@ -204,7 +204,7 @@ tag_split_result tag_split(slice str, slice tag_name) {
     found.data = location;
     found.len = tag_len;
 
-    before.len = before.data - found.data;
+    before.len = found.data - before.data;
 
     after.data = closing + 1;
     after.len = (str.data + str.len) - after.data;
@@ -423,33 +423,23 @@ char *render_blog_post(blog_file *content, blog_file *prev, blog_file *next) {
 char *render_static_inserts(char *buffer) {
   sb_t *sb = &(sb_t){0};
 
-  // This is a good usecase for tag_split
-
   slice body = slice_from_cstr(buffer);
   slice static_insert_tagname = slice_from_cstr("StaticInsert");
   slice insert_name_attribname = slice_from_cstr("name");
 
-  slice insert_tag = tag_find(body, static_insert_tagname);
+  tag_split_result split_result = tag_split(body, static_insert_tagname);
 
-  if (!insert_tag.len){
+  if (!split_result.found.len){
       return strdup(buffer);
   }
 
-  char *start = body.data;
-  size_t len = insert_tag.data - start;
+  sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split_result.before));
 
-  // Push everything from the start of the buffer to the start of the insert tag
-  sb_appendf(sb, SLICE_FMT, (int)len, start);
-
-  slice name_attrib = tag_attrib(insert_tag, insert_name_attribname);
+  slice name_attrib = tag_attrib(split_result.found, insert_name_attribname);
   char *content = get_static(name_attrib);
   sb_append(sb, content);
 
-  start = insert_tag.data + insert_tag.len;
-  char *end = body.data + body.len;
-  len = end - start;
-
-  sb_appendf(sb, SLICE_FMT, (int)len, start);
+  sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split_result.after));
 
   return sb_flush(sb);
 }
