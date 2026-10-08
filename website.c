@@ -470,7 +470,7 @@ int main(int argc, char **argv) {
     add_static_insert_data("LatestBlogPostPreview", latest_blog_preview);
 
     for (size_t i = 0; i < blogs.len; i++) {
-        TAG("li", "class=\"mb-1 p-4 border\" style=\"min-height: 20vh\"") {
+        TAG("li", "class=\"mb-1\" style=\"min-height: 20vh\"") {
             snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"",
                      (int)len, basename);
             TAG("a", attribs) {

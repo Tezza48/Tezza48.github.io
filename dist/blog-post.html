@@ -24,13 +24,15 @@
     <main class="container d-flex flex-column flex-grow-1">
 
         
-    <div id="post-content"></div>
+    <article class="mt-5">
+        <div id="post-content"></div>
+    </article>
     <script type="module">
         const postContentDiv = document.getElementById("post-content");
         const params = new URLSearchParams(document.location.search);
 
         const postContentName = params.get("blogPost");
-        const postContent = await (
+        const postContent = await(
             await fetch(`${postContentName}.html`)
         ).text();
         postContentDiv.outerHTML = postContent;
