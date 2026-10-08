@@ -220,19 +220,22 @@ char *render_static_inserts(char *buffer) {
     slice static_insert_tagname = slice_from_cstr("StaticInsert");
     slice insert_name_attribname = slice_from_cstr("name");
 
-    tag_split_result split_result = tag_split(body, static_insert_tagname);
+    // puts(buffer);
 
-    if (!split_result.found.len) {
+    tag_split_result split = tag_split(body, static_insert_tagname);
+
+    if (!split.found.len)
         return strdup(buffer);
+
+    for (; split.found.len;
+         split = tag_split(split.after, static_insert_tagname)) {
+        sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split.before));
+        slice name_attrib = tag_attrib(split.found, insert_name_attribname);
+        char *content = get_static(name_attrib);
+        sb_append(sb, content);
     }
 
-    sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split_result.before));
-
-    slice name_attrib = tag_attrib(split_result.found, insert_name_attribname);
-    char *content = get_static(name_attrib);
-    sb_append(sb, content);
-
-    sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split_result.after));
+    sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split.after));
 
     return sb_flush(sb);
 }
@@ -475,7 +478,7 @@ int main(int argc, char **argv) {
             }
         }
     }
-    char * blog_post_list = sb_flush(sb);
+    char *blog_post_list = sb_flush(sb);
     add_static_insert_data("BlogPostList", blog_post_list);
 
     // Render blog files to

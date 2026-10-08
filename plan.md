@@ -3,7 +3,7 @@
 - [x] Render a whole directory of partials to the `dist` dir
 - [x] Implement the hooks for rendering Markdown
     - Explicitly loads blog files and renders them as partial HTML which is loaded by a harness file using a query string
-- [ ] Implement `StaticInsert` - A map of pre rendered content that gets pulled into a partial. (latest blog post, arbitrary rendered HTMLdata, maybe even direct links to other HTML fies)
+- [x] Implement `StaticInsert` - A map of pre rendered content that gets pulled into a partial. (latest blog post, arbitrary rendered HTMLdata, maybe even direct links to other HTML fies)
     - Partial, "LatestBlogPost" is implemented, only the first one in the file is actually rendered
     - Hooks like this ought to be rendered in a pipeline of some sort rather than shimming it directly into the page render loop
     - It also should probably use the `tag_split` method in a loop so i dont need to duplicate the code to move the cursor for building the strings buy hand quite so much
