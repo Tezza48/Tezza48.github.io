@@ -18,12 +18,14 @@ typedef struct sb_s
 } sb_t;
 
 void sb_append(sb_t *sb, char *str);
-
 void sb_append_alloced(sb_t *sb, char *str);
-
 void sb_appendln(sb_t *sb, char *str);
-
 void sb_appendf(sb_t *sb, char *fmt, ...);
+
+void sb_prepend(sb_t *sb, char *str);
+void sb_prepend_alloced(sb_t *sb, char *str);
+void sb_prependln(sb_t *sb, char *str);
+void sb_prependf(sb_t *sb, char *fmt, ...);
 
 /// @brief Returns the built string, cached internally
 /// @param sb
