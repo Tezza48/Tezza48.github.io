@@ -8,7 +8,6 @@
 <li>Simple <code>StaticInsert</code> Hooks can inject pre rendered strings into any partial HTML, used for the latest blog preview on index.html and the blog post list on /blog</li>
 <li>It's not currently set up to be extended with plugins however the StaticInsert hook + mostly generic pages dir could support any arbitrary site content</li>
 </ul>
-<br>
 <p>I felt like additions to the site generator were becoming increasingly more difficult and it was not sitting well with me that fully recompiling the application was required to make any updates to HTML structure (also i thought it would be interesting to do the following) so i have totally restructured this static site generator!</p>
 <p>It also lost focus on this refactor so had been making little bits of progress here and there but finally jumped in and completed it this week.</p>
 <p>To recap, the previous implementation of this site was 2 parts:</p>
@@ -23,14 +22,13 @@
 <ul>
 <li><code>tag_find(slice haystack, slice tag_name)</code> which will find a tag by matching the string and finding the <code>&lt;</code> and <code>&gt;</code> chars left and right</li>
 <li><code>tag_split(slice haystack, slice tag_name)</code> which does the same but will return slices for the chunks before and after the tag as well as the slice containing the tag itself</li>
-<li>finally <code>tag_attrib(slice tag, slice attrib_name)</code> which finds any attributes by name in a tag. </li>
+<li>finally <code>tag_attrib(slice tag, slice attrib_name)</code> which finds any attributes by name in a tag.</li>
 </ul>
 <p><blockquote>The tag "api" is incredibly rhudimentary but works fine for the current scope</blockquote></p>
 <h1>Blog changes</h1>
 <p>Blog posts are now directly transformed to HTML and written as partial HTML to the dist dir.</p>
 <p>The new <code>/pages/blog-post.html</code> page loads the requested partial from the query string and injects it into the page contents. This is a bit of a lazy move and could probably be abused but it does have the benefit of allowing the page harness to be cached and only loading blog post content over the wire.</p>
 <p>It wouldn't be a big hassle to jsut output full HTML files for the posts if it's problematic to do it this way.</p>
-<br>
 <h1>String Injection</h1>
 <p>Finally to implement the blog post page as well as the blog preview on the homepage I've added an associative array mapping strings to strings which allows me to add any <code>&lt;StaticInsert name="" /&gt;</code> to a partial or templete anywhere, then register some arbitary string before pages are rendered to have that text injected anywhere.</p>
 <p>For example the latest blog post can be seen here:</p>
@@ -43,30 +41,9 @@
 <li>Pages can reference outer "templates" to b</li>
 </ul>
 </div></a></p>
-    <p><a href="blog-post.html?blogPost=2026-10-08"><div ><h1>Full Site Backend Overhaul</h1>
-<ul>
-<li>Rewrote the whole site generator</li>
-<li>Site now uses templating system</li>
-<li>Pages dir files map directly to rendered files in dist</li>
-<li>Pages can reference outer "templates" to b</li>
-</ul>
-</div></a></p>
-    <p><a href="blog-post.html?blogPost=2026-10-08"><div ><h1>Full Site Backend Overhaul</h1>
-<ul>
-<li>Rewrote the whole site generator</li>
-<li>Site now uses templating system</li>
-<li>Pages dir files map directly to rendered files in dist</li>
-<li>Pages can reference outer "templates" to b</li>
-</ul>
-</div></a></p>
-    <p><a href="blog-post.html?blogPost=2026-10-08"><div ><h1>Full Site Backend Overhaul</h1>
-<ul>
-<li>Rewrote the whole site generator</li>
-<li>Site now uses templating system</li>
-<li>Pages dir files map directly to rendered files in dist</li>
-<li>Pages can reference outer "templates" to b</li>
-</ul>
-</div></a></p>
 <p></div></p>
-<p>and it will update over time as new posts are added. (I had to actually tweak the site a little to add the static insert renderer into the blog "pipeline"... It's a little messy in there)</p>
+<p>and it will update over time as new posts are added. (I had to actually rewrite the majority of the tag query functions to correctly find tags without quitting early AND adding the static inserts to the blog part of the pipeline.)</p>
+<h1>Conclusion</h1>
+<p>This has been a super fun update to work on and feature to implement in general. It's just a hell of a lot of work. The src code could do with some cleanup and is very specific to what i'm currently feeding in however that's a task for another day.</p>
+<p>Thanks for reading.</p>
 <span ><a href="blog-post.html?blogPost=2026-05-02" class="">Prev: 2026-05-02</a></span>
