@@ -87,53 +87,71 @@ typedef struct {
     slice before, found, after;
 } tag_split_result;
 
-slice tag_find(slice haystack, slice needle) {
-    char *found = memmem(haystack.data, haystack.len, needle.data, needle.len);
-    if (found) {
-        while (*found != '<' && found != haystack.data)
-            found--;
-        char *closing = strchr(found, '>') + 1;
-        return (slice){found, closing - found};
+slice tag_find(slice haystack, slice tag_name) {
+    printf("    tag_find(" SLICE_FMT ")\n", SLICE_ARGS(tag_name));
+
+    char tag_with_opening_bracket[256] = {0};
+    snprintf(tag_with_opening_bracket, 256, "<" SLICE_FMT,
+             SLICE_ARGS(tag_name));
+
+    char *found = memmem(haystack.data, haystack.len, tag_with_opening_bracket,
+                         strlen(tag_with_opening_bracket));
+
+    if (!found) {
+        return (slice){0};
     }
-    return (slice){0};
+
+    char *end_bracket = strchr(found, '>');
+    if (!end_bracket) {
+        return (slice){0};
+    }
+
+    slice result = {found, 1 + end_bracket - found};
+
+    printf("        Tag was found: " SLICE_FMT "\n", SLICE_ARGS(result));
+    return result;
 }
 
-tag_split_result tag_split(slice str, slice tag_name) {
-    slice before = str;
-    slice found = {0};
-    slice after = {0};
+tag_split_result tag_split(slice haystack, slice tag_name) {
+    printf("    tag_split(" SLICE_FMT ")\n    --->", SLICE_ARGS(tag_name));
+    slice found = tag_find(haystack, tag_name);
+    if (!found.len)
+        return (tag_split_result){0};
 
-    char *location = memmem(str.data, str.len, tag_name.data, tag_name.len);
-    if (location) {
-        // Find the opening < by moving left
-        while (*location != '<' && location != str.data) {
-            location--;
-        }
+    slice before = {0}, after = {0};
 
-        char *closing = strchr(location, '>') + 1;
-        size_t tag_len = closing - location;
+    before.data = haystack.data;
+    before.len = found.data - haystack.data;
 
-        found.data = location;
-        found.len = tag_len;
+    after.data = found.data + found.len;
+    after.len = (haystack.data + haystack.len) - after.data;
 
-        before.len = found.data - before.data;
+    printf("===:\n\nBEFORE\n" SLICE_FMT "\n\nFOUND\n" SLICE_FMT
+           "\n\nAFTER\n" SLICE_FMT"\n\n",
+           SLICE_ARGS(before), SLICE_ARGS(found), SLICE_ARGS(after));
 
-        after.data = closing + 1;
-        after.len = (str.data + str.len) - after.data;
-    }
-    return (tag_split_result){before, found, after};
+    return (tag_split_result){.before = before, .found = found, .after = after};
 }
 
 slice tag_attrib(slice tag, slice attrib_name) {
+    printf("    tag_attrib(\"" SLICE_FMT "\", \"" SLICE_FMT "\")\n",
+           SLICE_ARGS(tag), SLICE_ARGS(attrib_name));
     char *attrib_loc =
         memmem(tag.data, tag.len, attrib_name.data, attrib_name.len);
-    if (!attrib_loc)
+    if (!attrib_loc) {
+        puts("        Attrib was not found");
         return (slice){0};
+    }
 
-    // attrib_name="attrib_value"
+    // attrib_name="attrib_value". Need to jump over the = and "
     attrib_loc += attrib_name.len + 2;
     char *closing_quote = strchr(attrib_loc, '"');
-    return (slice){.data = attrib_loc, .len = closing_quote - attrib_loc};
+    slice result =
+        (slice){.data = attrib_loc, .len = closing_quote - attrib_loc};
+    printf("        Attrib was found: key = " SLICE_FMT ", value = " SLICE_FMT
+           "\n",
+           SLICE_ARGS(attrib_name), SLICE_ARGS(result));
+    return result;
 }
 
 typedef struct {
@@ -199,16 +217,19 @@ struct {
 } static_inserts = {0};
 
 void add_static_insert_data(char *name, char *body) {
+    printf(">> Injecting Static string: %s\n", name);
     arr_push(&static_inserts, ((static_insert){name, body}));
 }
 
 char *get_static(slice name) {
+    printf("<< Getting Static string: " SLICE_FMT "\n", SLICE_ARGS(name));
     for (size_t i = 0; i < static_inserts.len; i++) {
         if (strncmp(name.data, static_inserts.data[i].name, name.len) == 0) {
+            puts("  Found");
             return static_inserts.data[i].body;
         }
     }
-
+    puts("  Missing");
     return NULL;
 }
 
@@ -220,22 +241,24 @@ char *render_static_inserts(char *buffer) {
     slice static_insert_tagname = slice_from_cstr("StaticInsert");
     slice insert_name_attribname = slice_from_cstr("name");
 
-    // puts(buffer);
-
     tag_split_result split = tag_split(body, static_insert_tagname);
-
-    if (!split.found.len)
+    if (!split.found.len) {
+        puts("        Didnt find a static insert");
         return strdup(buffer);
+    }
 
-    for (; split.found.len;
-         split = tag_split(split.after, static_insert_tagname)) {
+    slice remainder = split.after;
+
+    for (;split.found.len;split = tag_split(split.after, static_insert_tagname)) {
         sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split.before));
         slice name_attrib = tag_attrib(split.found, insert_name_attribname);
         char *content = get_static(name_attrib);
         sb_append(sb, content);
+        remainder = split.after;
     }
 
-    sb_appendf(sb, SLICE_FMT, SLICE_ARGS(split.after));
+    printf("<> Appending the After now:\n"SLICE_FMT"\n", SLICE_ARGS(remainder));
+    sb_appendf(sb, SLICE_FMT, SLICE_ARGS(remainder));
 
     return sb_flush(sb);
 }
@@ -249,22 +272,25 @@ typedef struct {
 // Recursively load a partial, inserting into the Content tag of any parent
 // elements
 char *render_partial(char *filename) {
+    printf("Rendering partial: %s\n", filename);
     char *file = read_file(filename);
     slice body = slice_from_cstr(file);
 
     partials_stack stack = {0};
 
     slice static_template_tagname = slice_from_cstr("StaticTemplate");
+    slice scr_attrib_key = slice_from_cstr("src");
     slice static_template_tagname_close = slice_from_cstr("/StaticTemplate");
     slice static_content_tagname = slice_from_cstr("StaticContent /");
 
     slice parent_open_tag = tag_find(body, static_template_tagname);
     while (parent_open_tag.len != 0) {
-        slice parent_name = tag_attrib(body, slice_from_cstr("src"));
-        char name[256] = {0};
-        memcpy(name, parent_name.data,
-               (parent_name.len < 255) ? parent_name.len : 255);
-        char *parent_src = read_file(name);
+        slice src_attrib_slice = tag_attrib(parent_open_tag, scr_attrib_key);
+        char src_attrib[256] = {0};
+        memcpy(src_attrib, src_attrib_slice.data,
+               (src_attrib_slice.len < 255) ? src_attrib_slice.len : 255);
+        // printf("src=" SLICE_FMT "\n", SLICE_ARGS(src_attrib_slice));
+        char *parent_src = read_file(src_attrib);
 
         arr_push(&stack, parent_src);
         parent_open_tag =
@@ -498,13 +524,18 @@ int main(int argc, char **argv) {
             prev = &blogs.data[i + 1];
         }
 
-        char *blog_page = render_blog_post(blog, prev, next);
+        printf("Rendering blog file: %s\n", dist_path);
+        char *rendered = render_blog_post(blog, prev, next);
+        puts("Rendering the inserts");
+        char *static_inserts_rendered = render_static_inserts(rendered);
+        free(rendered);
 
+        char *final = static_inserts_rendered;
+        // char* final = rendered;
         FILE *f = fopen(dist_path, "w+");
-        fwrite(blog_page, sizeof(char), strlen(blog_page), f);
+        fwrite(final, sizeof(char), strlen(final), f);
         fclose(f);
-
-        free(blog_page);
+        free(final);
     }
 
     // Load all pages from pages dir and render them to out dir
@@ -520,6 +551,7 @@ int main(int argc, char **argv) {
         free(rendered);
 
         char *final = static_inserts_rendered;
+        // char* final = rendered;
         char out_name[256] = {0};
         snprintf(out_name, 256, "%s/%s", out_dir,
                  current_partial_filename + strlen(pages_dir));
