@@ -163,10 +163,6 @@ blog_files load_blog_files(char *blogs_dir) {
         memcpy(f.filename, g.gl_pathv[i],
                size_min(sizeof(f.filename), strlen(g.gl_pathv[i])));
         f.src = read_file(f.filename);
-
-        // TODO WT: Would be nice to wrap the blog posts so that styling can be
-        // applied to them
-
         f.rendered = parse_markdown(f.src);
         size_t preview_len = size_min(strlen(f.src), 200);
         char *preview_src = strndup(f.src, preview_len);
@@ -474,6 +470,7 @@ int main(int argc, char **argv) {
     add_static_insert_data("LatestBlogPostPreview", latest_blog_preview);
 
     for (size_t i = 0; i < blogs.len; i++) {
+        str_filename_noext(blogs.data[i].filename, &basename, &len);
         TAG("li", "class=\"mb-1\" style=\"min-height: 20vh\"") {
             snprintf(attribs, 512, "href=\"blog-post.html?blogPost=%.*s\"",
                      (int)len, basename);
