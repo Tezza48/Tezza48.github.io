@@ -504,7 +504,6 @@ int main(int argc, char **argv) {
         free(rendered);
 
         char *final = static_inserts_rendered;
-        // char* final = rendered;
         FILE *f = fopen(dist_path, "w+");
         fwrite(final, sizeof(char), strlen(final), f);
         fclose(f);
@@ -524,7 +523,6 @@ int main(int argc, char **argv) {
         free(rendered);
 
         char *final = static_inserts_rendered;
-        // char* final = rendered;
         char out_name[256] = {0};
         snprintf(out_name, 256, "%s/%s", out_dir,
                  current_partial_filename + strlen(pages_dir));
